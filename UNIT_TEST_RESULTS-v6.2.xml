@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.buttonremapping.TouchPoliciesTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-08-18T02:03:47" hostname="LITTLETARO" time="0.032">
+  <properties/>
+  <testcase name="stationarySinglePointerRemainsEligible" classname="com.example.buttonremapping.TouchPoliciesTest" time="0.021"/>
+  <testcase name="leavingAreaOrAddingPointerCancels" classname="com.example.buttonremapping.TouchPoliciesTest" time="0.004"/>
+  <testcase name="movingBeyondTouchSlopCancels" classname="com.example.buttonremapping.TouchPoliciesTest" time="0.001"/>
+  <testcase name="targetCenterUsesTheUserRectangleEvenAtDisplayEdge" classname="com.example.buttonremapping.TouchPoliciesTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

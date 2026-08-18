@@ -1,0 +1,35 @@
+# Local machine / IDE files
+local.properties
+*.iml
+.idea/
+.vscode/
+.DS_Store
+
+# Gradle / build outputs
+.gradle/
+build/
+*/build/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Logs
+*.log
+
+# APK / release artifacts
+*.apk
+*.aab
+
+# Signing / secrets
+*.jks
+*.keystore
+keystore.properties
+
+# Test/device scratch data
+work/
+
+# Experimental post-v6.2 probe module (not part of the v6.2 release)
+touch-interaction-probe/
+
+# Scratch screenshots at repo root
+*.png
