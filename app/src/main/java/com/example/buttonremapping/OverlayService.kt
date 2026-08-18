@@ -32,6 +32,7 @@ class OverlayService : Service() {
     private var blockedRect = Rect()
     private var toggleRect = Rect()
     private var blockedCornerRadius = 0.5f
+    private var blockedAreaAlpha = 0.38f
     private var toggleDragStartX = 0
     private var toggleDragStartY = 0
     private val triggerHandler = Handler(Looper.getMainLooper())
@@ -114,6 +115,7 @@ class OverlayService : Service() {
             val geometry = OverlayGeometry.fromWindowManager(this)
             var config = LayoutPrefs.load(this)
             blockedCornerRadius = config.blockedCornerRadius
+            blockedAreaAlpha = config.blockedAreaAlpha.coerceIn(0.05f, 1f)
             blockedRect = OverlayGeometry.toPixelRect(
                 config.blockedArea,
                 geometry,
@@ -319,8 +321,10 @@ class OverlayService : Service() {
     }
 
     private fun createBlockView(): BlockOverlayView = BlockOverlayView(this).apply {
-        // Runtime blocking is transparent; opacity is only an editor setting.
-        alpha = 0f
+        // 屏蔽区域透明度由配置 blockedAreaAlpha 控制（下限 0.05，不为 0），
+        // 运行时显示为半透明红色标识；触摸拦截逻辑不变。
+        alpha = blockedAreaAlpha
+        setBackgroundColor(BLOCKED_VIEW_COLOR)
     }
 
     private fun removeBlockView(view: BlockOverlayView) {
@@ -399,16 +403,17 @@ class OverlayService : Service() {
     private fun showBlockedAreaIndicator() {
         if (!isBlocked || blockedViews.isEmpty()) return
         blockedViews.forEach { view ->
-            view.alpha = BLOCKED_INDICATOR_ALPHA
-            view.setBackgroundColor(BLOCKED_INDICATOR_COLOR)
+            // 拖动悬浮开关时把屏蔽区域临时提亮，方便确认位置。
+            view.alpha = 0.9f
+            view.setBackgroundColor(BLOCKED_VIEW_COLOR)
         }
         RuntimeProtection.recordEvent(this, "显示屏蔽区域标识")
     }
 
     private fun hideBlockedAreaIndicator() {
         blockedViews.forEach { view ->
-            view.alpha = 0f
-            view.setBackgroundColor(Color.TRANSPARENT)
+            view.alpha = blockedAreaAlpha
+            view.setBackgroundColor(BLOCKED_VIEW_COLOR)
         }
     }
 
@@ -580,8 +585,8 @@ class OverlayService : Service() {
         private const val CHANNEL_ID = "overlay_prototype"
         private const val NOTIFICATION_ID = 1001
         private const val ROUNDED_STRIPE_COUNT = 8
-        private const val BLOCKED_INDICATOR_ALPHA = 0.32f
-        private val BLOCKED_INDICATOR_COLOR = Color.argb(140, 255, 82, 82)
+        /** 屏蔽区域运行时底色（与编辑器屏蔽框的红色系一致），透明度由配置控制。 */
+        private val BLOCKED_VIEW_COLOR = Color.rgb(255, 101, 101)
         private const val TRIGGER_POLL_INTERVAL_MS = 1_500L
 
         @Volatile

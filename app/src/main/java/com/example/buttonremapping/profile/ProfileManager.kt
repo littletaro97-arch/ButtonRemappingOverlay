@@ -434,6 +434,7 @@ object ProfileManager {
         put("virtualButtonAlpha", config.virtualButtonAlpha)
         put("virtualButtonCornerRadius", config.virtualButtonCornerRadius)
         put("targetCornerRadius", config.targetCornerRadius)
+        put("targetBlockAlpha", config.targetBlockAlpha)
         putOptionalString("screenshotUri", config.screenshotUri)
         put("screenshotWidth", config.screenshotWidth)
         put("screenshotHeight", config.screenshotHeight)
@@ -480,6 +481,8 @@ object ProfileManager {
                 "targetCornerRadius",
                 defaults.targetCornerRadius,
             ).coerceIn(0f, 0.5f),
+            targetBlockAlpha = json.float("targetBlockAlpha", defaults.targetBlockAlpha)
+                .coerceIn(0.05f, 1f),
             screenshotUri = json.optionalString("screenshotUri"),
             screenshotWidth = json.optInt("screenshotWidth", 0),
             screenshotHeight = json.optInt("screenshotHeight", 0),

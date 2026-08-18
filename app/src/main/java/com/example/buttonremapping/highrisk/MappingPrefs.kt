@@ -26,6 +26,8 @@ data class MappingConfig(
     val virtualButtonAlpha: Float = 0.88f,
     val virtualButtonCornerRadius: Float = 0.28f,
     val targetCornerRadius: Float = 0.08f,
+    /** 目标位置拦截窗口透明度（运行时可见的半透明标识，与长按区域透明度同模型）。 */
+    val targetBlockAlpha: Float = 0.38f,
     val screenshotUri: String? = null,
     val screenshotWidth: Int = 0,
     val screenshotHeight: Int = 0,

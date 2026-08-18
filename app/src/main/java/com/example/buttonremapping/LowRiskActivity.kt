@@ -106,7 +106,7 @@ class LowRiskActivity : Activity() {
         }
         scrollView.addView(root, LinearLayout.LayoutParams(-1, -2))
 
-        root.addView(textView("游戏按钮映射", 26f, Color.rgb(244, 247, 251)))
+        root.addView(textView("屏蔽区域模式", 26f, Color.rgb(244, 247, 251)))
         root.addView(textView(
             "屏蔽区域模式：截图辅助设置一个屏蔽区域，悬浮开关可临时恢复触摸。",
             14f,

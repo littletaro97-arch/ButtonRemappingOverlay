@@ -32,6 +32,7 @@ class HighRiskEditorActivity : Activity() {
     private lateinit var canvasView: MappingCanvasView
     private lateinit var targetView: ComponentEditorView
     private lateinit var virtualView: ComponentEditorView
+    private lateinit var targetOpacityLabel: TextView
     private lateinit var opacityLabel: TextView
     private lateinit var cornerLabel: TextView
     private lateinit var sizeHint: TextView
@@ -138,7 +139,7 @@ class HighRiskEditorActivity : Activity() {
         editorRoot.addView(topBar, FrameLayout.LayoutParams(-1, dp(48)).apply {
             gravity = Gravity.TOP
         })
-        editorRoot.addView(bottomBar, FrameLayout.LayoutParams(-1, dp(56)).apply {
+        editorRoot.addView(bottomBar, FrameLayout.LayoutParams(-1, dp(96)).apply {
             gravity = Gravity.BOTTOM
         })
         // 点击编辑区空白处（非组件、非遮挡栏）：隐藏/重现上下遮挡栏。
@@ -180,17 +181,43 @@ class HighRiskEditorActivity : Activity() {
     }
 
     private fun createBottomBar(): View = LinearLayout(this).apply {
-        orientation = LinearLayout.HORIZONTAL
-        gravity = Gravity.CENTER_VERTICAL
-        setPadding(dp(12), dp(2), dp(12), dp(2))
+        orientation = LinearLayout.VERTICAL
+        setPadding(dp(12), dp(4), dp(12), dp(4))
         background = GradientDrawable().apply { setColor(Color.argb(238, 22, 27, 35)) }
+
+        // 第一行：目标位置透明度 + 新按钮透明度（复用长按编辑器透明度滑块逻辑）。
+        val opacityRow = LinearLayout(this@HighRiskEditorActivity).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+        targetOpacityLabel = TextView(this@HighRiskEditorActivity).apply {
+            textSize = 12f
+            setTextColor(Color.rgb(170, 181, 196))
+        }
+        opacityRow.addView(targetOpacityLabel, LinearLayout.LayoutParams(dp(88), -2))
+        opacityRow.addView(SeekBar(this@HighRiskEditorActivity).apply {
+            max = 100
+            progress = (config.targetBlockAlpha * 100f).roundToInt()
+            setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    config = config.copy(targetBlockAlpha = (progress / 100f).coerceIn(0.05f, 1f))
+                    targetView.alpha = config.targetBlockAlpha
+                    updateTargetOpacityLabel()
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
+                override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
+            })
+        }, LinearLayout.LayoutParams(0, dp(28), 1f))
 
         opacityLabel = TextView(this@HighRiskEditorActivity).apply {
             textSize = 12f
             setTextColor(Color.rgb(170, 181, 196))
         }
-        addView(opacityLabel, LinearLayout.LayoutParams(dp(84), -2))
-        addView(SeekBar(this@HighRiskEditorActivity).apply {
+        opacityRow.addView(opacityLabel, LinearLayout.LayoutParams(dp(88), -2).apply {
+            leftMargin = dp(10)
+        })
+        opacityRow.addView(SeekBar(this@HighRiskEditorActivity).apply {
             max = 100
             progress = (config.virtualButtonAlpha * 100f).roundToInt()
             setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -204,15 +231,19 @@ class HighRiskEditorActivity : Activity() {
                 override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
             })
         }, LinearLayout.LayoutParams(0, dp(28), 1f))
+        addView(opacityRow, LinearLayout.LayoutParams(-1, -2))
 
+        // 第二行：按钮形状 + 保存。
+        val cornerRow = LinearLayout(this@HighRiskEditorActivity).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
         cornerLabel = TextView(this@HighRiskEditorActivity).apply {
             textSize = 12f
             setTextColor(Color.rgb(170, 181, 196))
         }
-        addView(cornerLabel, LinearLayout.LayoutParams(dp(84), -2).apply {
-            leftMargin = dp(10)
-        })
-        addView(SeekBar(this@HighRiskEditorActivity).apply {
+        cornerRow.addView(cornerLabel, LinearLayout.LayoutParams(dp(88), -2))
+        cornerRow.addView(SeekBar(this@HighRiskEditorActivity).apply {
             max = 100
             progress = (config.virtualButtonCornerRadius * 200f).roundToInt()
             setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -226,8 +257,7 @@ class HighRiskEditorActivity : Activity() {
                 override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
             })
         }, LinearLayout.LayoutParams(0, dp(28), 1f))
-
-        addView(Button(this@HighRiskEditorActivity).apply {
+        cornerRow.addView(Button(this@HighRiskEditorActivity).apply {
             text = "保存布局"
             isAllCaps = false
             textSize = 12f
@@ -241,6 +271,9 @@ class HighRiskEditorActivity : Activity() {
             setPadding(dp(6), 0, dp(6), 0)
             setOnClickListener { saveAndExit() }
         }, LinearLayout.LayoutParams(dp(110), dp(30)).apply { leftMargin = dp(10) })
+        addView(cornerRow, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(4) })
+
+        updateTargetOpacityLabel()
         updateOpacityLabel()
         updateCornerLabel()
     }
@@ -282,8 +315,10 @@ class HighRiskEditorActivity : Activity() {
         // WindowManager 的输入命中区域是完整矩形。目标框也固定显示为矩形，
         // 避免圆角视觉暗示角落不属于实际屏蔽区。
         targetView.setCornerRadiusRatio(0f)
+        targetView.alpha = config.targetBlockAlpha
         virtualView.setCornerRadiusRatio(config.virtualButtonCornerRadius)
         virtualView.alpha = config.virtualButtonAlpha
+        updateTargetOpacityLabel()
         updateOpacityLabel()
         updateCornerLabel()
         updateSizeHint()
@@ -316,6 +351,12 @@ class HighRiskEditorActivity : Activity() {
             ),
             coordinateRotation = savedRotation,
         )
+    }
+
+    private fun updateTargetOpacityLabel() {
+        if (::targetOpacityLabel.isInitialized) {
+            targetOpacityLabel.text = "目标位置 ${(config.targetBlockAlpha * 100f).roundToInt()}%"
+        }
     }
 
     private fun updateOpacityLabel() {

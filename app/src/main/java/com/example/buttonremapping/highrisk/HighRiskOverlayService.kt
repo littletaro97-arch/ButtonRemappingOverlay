@@ -227,7 +227,16 @@ class HighRiskOverlayService : Service() {
         if (!active || virtualView != null) return
         // 先添加目标拦截窗口（下层），再添加虚拟按钮（上层）。
         // WindowManager 中后添加的窗口在上层；若反过来，拦截窗口会盖住虚拟按钮使其无法点击。
-        addTargetBlockOverlay(geometry)
+        // 目标拦截窗口直接由 config 重新换算，不再依赖可能已被 removeVirtualView()
+        // 清空的 targetBlockRect 字段，避免旋转重建/指定应用重启映射后目标窗口被
+        // 跳过、目标按钮恢复可直点（虚拟按钮却仍在）的偶发 bug。
+        val blockRect = OverlayGeometry.toPixelRect(
+            config.targetBlock,
+            geometry,
+            config.coordinateRotation,
+        )
+        targetBlockRect = blockRect
+        addTargetBlockOverlay(geometry, blockRect, config.targetBlockAlpha)
         val rect = OverlayGeometry.toPixelRect(
             config.virtualButton,
             geometry,
@@ -262,19 +271,21 @@ class HighRiskOverlayService : Service() {
      */
     private fun addTargetBlockOverlay(
         geometry: com.example.buttonremapping.DisplayGeometry,
+        rect: android.graphics.Rect,
+        alpha: Float,
     ) {
         if (targetBlockView != null) return
-        val rect = targetBlockRect ?: return
         val width = rect.width().coerceAtLeast(1)
         val height = rect.height().coerceAtLeast(1)
         val left = rect.left.coerceIn(0, (geometry.width - width).coerceAtLeast(0))
         val top = rect.top.coerceIn(0, (geometry.height - height).coerceAtLeast(0))
         val clamped = android.graphics.Rect(left, top, left + width, top + height)
         val view = BlockOverlayView(this).apply {
-            // 不把整个 View 设为 alpha=0：部分 OEM 会对完全透明的 Overlay
-            // 做合成/输入优化。1/255 的表面肉眼不可见，但仍保留明确输入层。
-            alpha = 1f
-            setBackgroundColor(Color.argb(1, 0, 0, 0))
+            // 目标区域透明度由配置 targetBlockAlpha 控制（下限 0.05，不为 0）：
+            // 既保持肉眼可见/可调的半透明标识，又规避部分 OEM 对完全透明 Overlay
+            // 的合成/输入优化不确定性。
+            this.alpha = alpha.coerceIn(0.05f, 1f)
+            setBackgroundColor(TARGET_BLOCK_COLOR)
         }
         try {
             RuntimeProtection.recordEvent(this, "WindowManager addView: target block")
@@ -552,25 +563,24 @@ class HighRiskOverlayService : Service() {
 
     private fun removeVirtualView() {
         virtualView?.let { view ->
-            if (virtualAttached) {
-                try {
-                    windowManager.removeViewImmediate(view)
-                    RuntimeProtection.recordEvent(this, "WindowManager removeView: high-risk virtual button")
-                } catch (_: IllegalArgumentException) {
-                    // The system already removed the window.
-                }
+            try {
+                windowManager.removeViewImmediate(view)
+                RuntimeProtection.recordEvent(this, "WindowManager removeView: high-risk virtual button")
+            } catch (_: IllegalArgumentException) {
+                // The system already removed the window.
             }
         }
         virtualView = null
         virtualAttached = false
         targetBlockView?.let { view ->
-            if (targetBlockAttached) {
-                try {
-                    windowManager.removeViewImmediate(view)
-                    RuntimeProtection.recordEvent(this, "WindowManager removeView: target block")
-                } catch (_: IllegalArgumentException) {
-                    // The system already removed the window.
-                }
+            // 无条件尝试移除：即使 targetBlockAttached 标志因注入前暂时关闭失败而
+            // 被置为 false，窗口可能仍挂在 WindowManager，移除可避免目标位置
+            // 残留旧拦截窗（既可能重复拦截，也可能让后续注入被自家窗口吞掉）。
+            try {
+                windowManager.removeViewImmediate(view)
+                RuntimeProtection.recordEvent(this, "WindowManager removeView: target block")
+            } catch (_: IllegalArgumentException) {
+                // The system already removed the window.
             }
         }
         targetBlockAttached = false
@@ -660,8 +670,9 @@ class HighRiskOverlayService : Service() {
         private const val MAIN_THREAD_OPERATION_TIMEOUT_MS = 1_000L
         private const val ACCESSIBILITY_GESTURE_SETTLE_MS = 90L
         private const val INPUT_WINDOW_SETTLE_MS = 64L
-        // 目标位置拦截窗口最小尺寸（与 v1.5.8 固定拦截尺寸一致），
-        // 防止用户划定过小导致按钮仍可点击。
+
+        /** 目标位置拦截窗口底色（与编辑器目标框的橙色系一致），透明度由配置控制。 */
+        private val TARGET_BLOCK_COLOR = Color.rgb(255, 153, 72)
 
         @Volatile
         var isRunning: Boolean = false

@@ -130,7 +130,7 @@ class HighRiskActivity : Activity() {
         val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         scrollView.addView(root, LinearLayout.LayoutParams(-1, -2))
 
-        root.addView(textView("游戏按钮映射", 26f, Color.rgb(244, 247, 251)))
+        root.addView(textView("修改键位模式", 26f, Color.rgb(244, 247, 251)))
         root.addView(textView("修改键位模式：单按钮位置映射，仅发送一次人工 Tap。", 14f, Color.rgb(170, 181, 196), 8))
         root.addView(textView(
             "该模式会生成系统级输入事件。请仅用于兼容性测试、自有应用测试或确认允许使用输入映射的应用。当前开发阶段禁止使用真实游戏测试。",
@@ -171,7 +171,16 @@ class HighRiskActivity : Activity() {
         mappingStatus = textView("映射：未启动", 14f, Color.rgb(170, 181, 196))
         root.addView(mappingStatus)
         val config = MappingPrefs.load(this)
-        layoutSummary = textView(if (config.configured) "目标位置：已设置\n新按钮：已设置" else "目标位置：未设置\n新按钮：未设置", 14f, Color.rgb(170, 181, 196), 8)
+        layoutSummary = textView(
+            if (config.configured) {
+                "目标位置：已设置 · 透明度 ${(config.targetBlockAlpha * 100f).roundToInt()}%\n新按钮：已设置"
+            } else {
+                "目标位置：未设置\n新按钮：未设置"
+            },
+            14f,
+            Color.rgb(170, 181, 196),
+            8,
+        )
         root.addView(layoutSummary)
         screenshotSummary = textView("未使用截图，编辑器将使用空白画布", 13f, Color.rgb(170, 181, 196), 8)
         root.addView(screenshotSummary)
@@ -319,7 +328,7 @@ class HighRiskActivity : Activity() {
         )
         val config = MappingPrefs.load(this)
         layoutSummary.text = if (config.configured) {
-            "目标位置：已设置\n新按钮：已设置"
+            "目标位置：已设置 · 透明度 ${(config.targetBlockAlpha * 100f).roundToInt()}%\n新按钮：已设置"
         } else {
             "目标位置：未设置\n新按钮：未设置"
         }

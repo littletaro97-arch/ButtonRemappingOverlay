@@ -84,15 +84,6 @@ class MainActivity : Activity() {
         scrollView.addView(root, LinearLayout.LayoutParams(-1, -2))
 
         root.addView(textView("游戏按钮映射", 26f, Color.rgb(244, 247, 251)))
-        root.addView(textView(
-            "选择一种触控管理方案。修改键位模式仅用于受控兼容性测试。",
-            14f,
-            Color.rgb(170, 181, 196),
-            top = 8,
-        ))
-        root.addView(sectionLabel("请选择模式"), LinearLayout.LayoutParams(-1, -2).apply {
-            topMargin = dp(28)
-        })
         root.addView(modePanel(
             title = "屏蔽区域模式",
             description = "屏蔽误触按钮区域，并用悬浮开关临时恢复触摸。",
@@ -100,7 +91,7 @@ class MainActivity : Activity() {
             enabled = true,
             badge = badgeChip("低风险方案", Color.rgb(102, 217, 163), Color.rgb(24, 58, 44)),
             onClick = { showLowRiskMode() },
-        ), LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
+        ), LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(24) })
         root.addView(modePanel(
             title = "长按触发模式",
             description = "把按一下触发的按钮变为长按满时间才触发，防止误触。",
@@ -114,7 +105,7 @@ class MainActivity : Activity() {
             description = "单按钮位置映射：一次人工点击对应一次目标 Tap。",
             buttonText = "进入",
             enabled = true,
-            badge = badgeChip("高风险方案", Color.rgb(255, 130, 127), Color.rgb(64, 26, 28)),
+            badge = badgeChip("中风险方案", Color.rgb(255, 193, 107), Color.rgb(64, 48, 24)),
             onClick = { confirmHighRiskEntry() },
         ), LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
         root.addView(modePanel(
@@ -127,51 +118,73 @@ class MainActivity : Activity() {
                 openRuntimeProtection()
             },
         ), LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(12) })
-        root.addView(textView(
-            "修改键位模式禁止真实游戏测试、连点、宏、自动操作、Root、Accessibility 和反作弊规避。",
-            12f,
-            Color.rgb(133, 146, 164),
-            top = 18,
-        ))
-
         root.addView(sectionLabel("问题反馈"), LinearLayout.LayoutParams(-1, -2).apply {
             topMargin = dp(24)
         })
         root.addView(contactRow(
-            "小红书：小红书号：${AppContact.XHS_ID}，昵称：${AppContact.XHS_NAME}",
-            AppContact.XHS_URL,
-            AppContact.XHS_PACKAGE,
+            name = "小红书",
+            detail = "小红书号：${AppContact.XHS_ID} · 昵称：${AppContact.XHS_NAME}",
+            url = AppContact.XHS_URL,
+            appPackage = AppContact.XHS_PACKAGE,
+            iconText = "红",
+            iconColor = Color.rgb(255, 36, 66),
         ), LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
         root.addView(contactRow(
-            "bilibili：UID：${AppContact.BILI_UID}，昵称：${AppContact.BILI_NAME}",
-            AppContact.BILI_URL,
-            AppContact.BILI_PACKAGE,
+            name = "bilibili",
+            detail = "UID：${AppContact.BILI_UID} · 昵称：${AppContact.BILI_NAME}",
+            url = AppContact.BILI_URL,
+            appPackage = AppContact.BILI_PACKAGE,
+            iconText = "B",
+            iconColor = Color.rgb(0, 161, 214),
         ), LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
         return scrollView
     }
 
-    private fun contactRow(text: String, url: String, appPackage: String?): View =
-        LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(dp(16), dp(14), dp(16), dp(14))
-            background = roundedBackground(Color.rgb(22, 27, 35), Color.rgb(42, 52, 68))
-            isClickable = true
-            setOnClickListener {
-                RuntimeProtection.recordEvent(this@MainActivity, "打开问题反馈主页", text)
-                openContactPage(url, appPackage)
-            }
-            addView(textView(text, 14f, Color.rgb(244, 247, 251)), LinearLayout.LayoutParams(
-                0, -2, 1f,
-            ))
-            addView(badgeChip(
-                "点击跳转",
-                Color.rgb(116, 167, 255),
-                Color.rgb(22, 34, 54),
-            ), LinearLayout.LayoutParams(-2, -2).apply {
-                leftMargin = dp(10)
-            })
+    private fun contactRow(
+        name: String,
+        detail: String,
+        url: String,
+        appPackage: String?,
+        iconText: String,
+        iconColor: Int,
+    ): View = LinearLayout(this).apply {
+        orientation = LinearLayout.HORIZONTAL
+        gravity = Gravity.CENTER_VERTICAL
+        setPadding(dp(16), dp(14), dp(16), dp(14))
+        background = roundedBackground(Color.rgb(22, 27, 35), Color.rgb(42, 52, 68))
+        isClickable = true
+        setOnClickListener {
+            RuntimeProtection.recordEvent(this@MainActivity, "打开问题反馈主页", name)
+            openContactPage(url, appPackage)
         }
+        // 左：品牌图标。
+        addView(contactIcon(iconText, iconColor), LinearLayout.LayoutParams(dp(40), dp(40)))
+        // 中：联系方式。
+        addView(LinearLayout(this@MainActivity).apply {
+            orientation = LinearLayout.VERTICAL
+            addView(textView(name, 15f, Color.rgb(244, 247, 251)))
+            addView(textView(detail, 12f, Color.rgb(170, 181, 196), top = 2))
+        }, LinearLayout.LayoutParams(0, -2, 1f).apply { leftMargin = dp(12) })
+        // 右：跳转入口。
+        addView(badgeChip(
+            "点击跳转",
+            Color.rgb(116, 167, 255),
+            Color.rgb(22, 34, 54),
+        ), LinearLayout.LayoutParams(-2, -2).apply {
+            leftMargin = dp(10)
+        })
+    }
+
+    private fun contactIcon(text: String, color: Int): TextView = TextView(this).apply {
+        this.text = text
+        textSize = 16f
+        setTextColor(Color.WHITE)
+        gravity = Gravity.CENTER
+        background = GradientDrawable().apply {
+            shape = GradientDrawable.OVAL
+            setColor(color)
+        }
+    }
 
     private fun openContactPage(url: String, appPackage: String?) {
         if (appPackage != null && isAppInstalled(appPackage)) {
@@ -204,9 +217,10 @@ class MainActivity : Activity() {
     private fun confirmHighRiskEntry() {
         RuntimeProtection.recordEvent(this, "打开修改键位模式说明")
         AlertDialog.Builder(this)
-            .setTitle("进入修改键位模式")
+            .setTitle("进入修改键位模式（中风险）")
             .setMessage(
-                "当前阶段尚不明确是否触及封号红线，请谨慎使用。",
+                "修改键位模式需要无障碍（或 Shizuku）注入权限，会生成系统级输入事件。" +
+                    "游戏若检测注入可能有封号风险，请谨慎使用。",
             )
             .setNegativeButton("取消", null)
             .setPositiveButton("继续") { _, _ ->

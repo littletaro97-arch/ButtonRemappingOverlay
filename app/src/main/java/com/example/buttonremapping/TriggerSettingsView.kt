@@ -30,7 +30,9 @@ class TriggerSettingsView(
     private val onStartRequested: () -> Unit,
 ) : LinearLayout(context) {
 
-    private val packageContainer = LinearLayout(context)
+    private val packageContainer = LinearLayout(context).apply {
+        orientation = VERTICAL
+    }
     private lateinit var permissionStatus: TextView
     private lateinit var permissionButton: Button
     private lateinit var enabledSwitch: Switch

@@ -4,7 +4,7 @@
     <string name="overlay_notification_title">低风险屏蔽正在运行</string>
     <string name="overlay_notification_text">仅屏蔽指定区域，可用悬浮开关临时恢复触摸</string>
     <string name="blocked_opacity_summary">原区域 %1$d%%</string>
-    <string name="blocked_layout_summary">屏蔽区域：%1$d%% × %2$d%% · 编辑透明度 %3$d%%</string>
+    <string name="blocked_layout_summary">屏蔽区域：%1$d%% × %2$d%% · 透明度 %3$d%%</string>
     <string name="screenshot_dimensions">%1$d × %2$d</string>
     <string name="screenshot_preview_opacity">预览 %1$d%%</string>
     <string name="accessibility_service_description">用于注入单次触摸点击（修改键位模式）。不读取屏幕内容，不监听或转发您的触摸操作。</string>
