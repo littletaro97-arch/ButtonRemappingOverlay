@@ -41,13 +41,13 @@ class TriggerSettingsView(
     init {
         orientation = VERTICAL
         setPadding(dp(14), dp(12), dp(14), dp(12))
-        background = roundedBackground(Color.rgb(22, 27, 35), Color.rgb(42, 52, 68))
+        background = roundedBackground(Color.rgb(255, 255, 255), Color.rgb(226, 230, 236))
 
         val titleRow = LinearLayout(context).apply {
             orientation = HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
         }
-        titleRow.addView(textView("指定应用启动", 15f, Color.rgb(244, 247, 251)), LayoutParams(0, -2, 1f))
+        titleRow.addView(textView("指定应用启动", 15f, Color.rgb(26, 31, 39)), LayoutParams(0, -2, 1f))
         titleRow.addView(TextView(context).apply {
             text = "测试"
             textSize = 12f
@@ -67,7 +67,7 @@ class TriggerSettingsView(
             orientation = HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
         }
-        permissionStatus = textView("使用情况访问权限", 13f, Color.rgb(255, 193, 107))
+        permissionStatus = textView("使用情况访问权限", 13f, Color.rgb(176, 122, 26))
         permissionRow.addView(permissionStatus, LayoutParams(0, -2, 1f))
         permissionButton = actionButton("去开启", false).apply {
             setOnClickListener {
@@ -83,7 +83,7 @@ class TriggerSettingsView(
             orientation = HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
         }
-        switchRow.addView(textView("启动指定应用监控", 14f, Color.rgb(244, 247, 251)), LayoutParams(0, -2, 1f))
+        switchRow.addView(textView("启动指定应用监控", 14f, Color.rgb(26, 31, 39)), LayoutParams(0, -2, 1f))
         enabledSwitch = Switch(context).apply {
             isChecked = currentTriggerEnabled()
             setOnCheckedChangeListener { _, checked ->
@@ -100,10 +100,10 @@ class TriggerSettingsView(
         switchRow.addView(enabledSwitch, LayoutParams(-2, -2))
         addView(switchRow, LayoutParams(-1, -2).apply { topMargin = dp(12) })
 
-        startStateText = textView("", 12f, Color.rgb(170, 181, 196), top = 6)
+        startStateText = textView("", 12f, Color.rgb(90, 100, 114), top = 6)
         addView(startStateText)
 
-        addView(textView("触发应用", 14f, Color.rgb(244, 247, 251)), LayoutParams(-1, -2).apply {
+        addView(textView("触发应用", 14f, Color.rgb(26, 31, 39)), LayoutParams(-1, -2).apply {
             topMargin = dp(14)
         })
         addView(packageContainer, LayoutParams(-1, -2).apply { topMargin = dp(6) })
@@ -129,7 +129,7 @@ class TriggerSettingsView(
         val granted = AppTrigger.hasUsageAccess(context)
         if (granted) {
             permissionStatus.text = "使用情况访问权限：已开启"
-            permissionStatus.setTextColor(Color.rgb(102, 217, 163))
+            permissionStatus.setTextColor(Color.rgb(24, 130, 90))
             permissionButton.text = "已开启"
             permissionButton.setTextColor(Color.rgb(9, 17, 28))
             permissionButton.background = GradientDrawable().apply {
@@ -140,13 +140,13 @@ class TriggerSettingsView(
             permissionButton.isEnabled = false
         } else {
             permissionStatus.text = "使用情况访问权限：未开启"
-            permissionStatus.setTextColor(Color.rgb(255, 193, 107))
+            permissionStatus.setTextColor(Color.rgb(176, 122, 26))
             permissionButton.text = "去开启"
-            permissionButton.setTextColor(Color.rgb(244, 247, 251))
+            permissionButton.setTextColor(Color.rgb(26, 31, 39))
             permissionButton.background = GradientDrawable().apply {
                 cornerRadius = dp(9).toFloat()
-                setColor(Color.rgb(32, 41, 56))
-                setStroke(dp(1), Color.rgb(64, 80, 104))
+                setColor(Color.rgb(232, 236, 242))
+                setStroke(dp(1), Color.rgb(206, 212, 222))
             }
             permissionButton.isEnabled = true
         }
@@ -162,7 +162,7 @@ class TriggerSettingsView(
             else -> "已启动：打开下方应用时将自动开启屏蔽/映射，离开后自动关闭。"
         }
         startStateText.setTextColor(
-            if (enabled && granted) Color.rgb(102, 217, 163) else Color.rgb(170, 181, 196),
+            if (enabled && granted) Color.rgb(24, 130, 90) else Color.rgb(90, 100, 114),
         )
     }
 
@@ -219,7 +219,7 @@ class TriggerSettingsView(
             packageContainer.addView(textView(
                 "尚未添加应用",
                 13f,
-                Color.rgb(170, 181, 196),
+                Color.rgb(90, 100, 114),
             ))
             return
         }
@@ -237,13 +237,13 @@ class TriggerSettingsView(
             orientation = HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
             setPadding(dp(8), dp(6), dp(8), dp(6))
-            background = roundedBackground(Color.rgb(26, 32, 42), Color.rgb(50, 62, 80))
+            background = roundedBackground(Color.rgb(244, 246, 249), Color.rgb(222, 227, 234))
             addView(textView(
                 AppTrigger.applicationLabel(context, packageName),
                 14f,
-                Color.rgb(244, 247, 251),
+                Color.rgb(26, 31, 39),
             ), LayoutParams(0, -2, 1f))
-            addView(textView(packageName, 11f, Color.rgb(133, 146, 164)), LayoutParams(-2, -2))
+            addView(textView(packageName, 11f, Color.rgb(122, 132, 148)), LayoutParams(-2, -2))
             addView(actionButton("移除", false).apply {
                 setOnClickListener {
                     RuntimeProtection.recordEvent(context, "移除触发应用", packageName)
@@ -301,11 +301,11 @@ class TriggerSettingsView(
         isAllCaps = false
         textSize = 13f
         stateListAnimator = null
-        setTextColor(if (primary) Color.rgb(9, 17, 28) else Color.rgb(244, 247, 251))
+        setTextColor(if (primary) Color.rgb(9, 17, 28) else Color.rgb(26, 31, 39))
         background = GradientDrawable().apply {
             cornerRadius = dp(9).toFloat()
-            setColor(if (primary) Color.rgb(116, 167, 255) else Color.rgb(32, 41, 56))
-            setStroke(dp(1), if (primary) Color.rgb(116, 167, 255) else Color.rgb(64, 80, 104))
+            setColor(if (primary) Color.rgb(116, 167, 255) else Color.rgb(232, 236, 242))
+            setStroke(dp(1), if (primary) Color.rgb(116, 167, 255) else Color.rgb(206, 212, 222))
         }
         setPadding(dp(6), 0, dp(6), 0)
     }

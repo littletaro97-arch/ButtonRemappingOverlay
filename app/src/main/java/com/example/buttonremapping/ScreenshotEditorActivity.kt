@@ -76,8 +76,8 @@ class ScreenshotEditorActivity : Activity() {
             )
         }
 
-        window.statusBarColor = Color.rgb(14, 17, 22)
-        window.navigationBarColor = Color.rgb(14, 17, 22)
+        window.statusBarColor = Color.rgb(247, 248, 250)
+        window.navigationBarColor = Color.rgb(247, 248, 250)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.setDecorFitsSystemWindows(false)
         } else {
@@ -105,7 +105,7 @@ class ScreenshotEditorActivity : Activity() {
 
     private fun createEditor(): View {
         editorRoot = FrameLayout(this).apply {
-            setBackgroundColor(Color.rgb(7, 9, 12))
+            setBackgroundColor(Color.rgb(247, 248, 250))
         }
         canvasView = ScreenshotCanvasView(
             context = this,
@@ -148,11 +148,11 @@ class ScreenshotEditorActivity : Activity() {
         orientation = LinearLayout.HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
         setPadding(dp(14), dp(4), dp(14), dp(4))
-        background = GradientDrawable().apply { setColor(Color.argb(238, 22, 27, 35)) }
+        background = GradientDrawable().apply { setColor(Color.argb(238, 255, 255, 255)) }
         addView(TextView(this@ScreenshotEditorActivity).apply {
             text = "截图编辑"
             textSize = 17f
-            setTextColor(Color.rgb(244, 247, 251))
+            setTextColor(Color.rgb(26, 31, 39))
         }, LinearLayout.LayoutParams(0, -2, 0.7f))
         sizeHint = TextView(this@ScreenshotEditorActivity).apply {
             textSize = 10f
@@ -163,7 +163,7 @@ class ScreenshotEditorActivity : Activity() {
         addView(TextView(this@ScreenshotEditorActivity).apply {
             text = getString(R.string.screenshot_dimensions, sourceWidth, sourceHeight)
             textSize = 12f
-            setTextColor(Color.rgb(170, 181, 196))
+            setTextColor(Color.rgb(90, 100, 114))
             gravity = Gravity.CENTER_VERTICAL
         }, LinearLayout.LayoutParams(-2, -1))
         updateSizeHint()
@@ -173,11 +173,11 @@ class ScreenshotEditorActivity : Activity() {
         orientation = LinearLayout.HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
         setPadding(dp(12), dp(2), dp(12), dp(2))
-        background = GradientDrawable().apply { setColor(Color.argb(238, 22, 27, 35)) }
+        background = GradientDrawable().apply { setColor(Color.argb(238, 255, 255, 255)) }
 
         opacityLabel = TextView(this@ScreenshotEditorActivity).apply {
             textSize = 12f
-            setTextColor(Color.rgb(170, 181, 196))
+            setTextColor(Color.rgb(90, 100, 114))
         }
         addView(opacityLabel, LinearLayout.LayoutParams(dp(76), -2))
         addView(SeekBar(this@ScreenshotEditorActivity).apply {
@@ -197,7 +197,7 @@ class ScreenshotEditorActivity : Activity() {
 
         cornerLabel = TextView(this@ScreenshotEditorActivity).apply {
             textSize = 12f
-            setTextColor(Color.rgb(170, 181, 196))
+            setTextColor(Color.rgb(90, 100, 114))
         }
         addView(cornerLabel, LinearLayout.LayoutParams(dp(76), -2).apply {
             leftMargin = dp(10)
@@ -300,7 +300,7 @@ class ScreenshotEditorActivity : Activity() {
             "截图尺寸与当前设备不同，请重新使用本机截图"
         }
         sizeHint.setTextColor(
-            if (sameSize) Color.rgb(170, 181, 196) else Color.rgb(255, 193, 107),
+            if (sameSize) Color.rgb(90, 100, 114) else Color.rgb(176, 122, 26),
         )
     }
 

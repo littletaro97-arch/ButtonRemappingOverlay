@@ -49,8 +49,8 @@ class HighRiskActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         RuntimeProtection.recordEvent(this, "打开修改键位模式页面")
-        window.statusBarColor = Color.rgb(14, 17, 22)
-        window.navigationBarColor = Color.rgb(14, 17, 22)
+        window.statusBarColor = Color.rgb(247, 248, 250)
+        window.navigationBarColor = Color.rgb(247, 248, 250)
         setContentView(createContent())
     }
 
@@ -99,7 +99,7 @@ class HighRiskActivity : Activity() {
 
     private fun createContent(): View {
         val scrollView = ScrollView(this).apply {
-            setBackgroundColor(Color.rgb(14, 17, 22))
+            setBackgroundColor(Color.rgb(247, 248, 250))
             isFillViewport = true
             isVerticalScrollBarEnabled = false
             isHorizontalScrollBarEnabled = false
@@ -130,12 +130,12 @@ class HighRiskActivity : Activity() {
         val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         scrollView.addView(root, LinearLayout.LayoutParams(-1, -2))
 
-        root.addView(textView("修改键位模式", 26f, Color.rgb(244, 247, 251)))
-        root.addView(textView("修改键位模式：单按钮位置映射，仅发送一次人工 Tap。", 14f, Color.rgb(170, 181, 196), 8))
+        root.addView(textView("修改键位模式", 26f, Color.rgb(26, 31, 39)))
+        root.addView(textView("修改键位模式：单按钮位置映射，仅发送一次人工 Tap。", 14f, Color.rgb(90, 100, 114), 8))
         root.addView(textView(
             "该模式会生成系统级输入事件。请仅用于兼容性测试、自有应用测试或确认允许使用输入映射的应用。当前开发阶段禁止使用真实游戏测试。",
             13f,
-            Color.rgb(255, 193, 107),
+            Color.rgb(176, 122, 26),
             18,
         ))
 
@@ -150,8 +150,8 @@ class HighRiskActivity : Activity() {
         )
 
         root.addView(sectionLabel("修改键位模式环境", 28))
-        inputStatus = textView("输入模块：检查中…", 14f, Color.rgb(170, 181, 196))
-        accessibilityStatus = textView("无障碍：检查中…", 14f, Color.rgb(170, 181, 196), 6)
+        inputStatus = textView("输入模块：检查中…", 14f, Color.rgb(90, 100, 114))
+        accessibilityStatus = textView("无障碍：检查中…", 14f, Color.rgb(90, 100, 114), 6)
         root.addView(inputStatus)
         root.addView(accessibilityStatus)
         root.addView(actionButton("开启无障碍注入", false).apply {
@@ -163,12 +163,12 @@ class HighRiskActivity : Activity() {
         root.addView(textView(
             "注入后端：当前使用无障碍（免 Root）。",
             12f,
-            Color.rgb(133, 146, 164),
+            Color.rgb(122, 132, 148),
             top = 8,
         ))
 
         root.addView(sectionLabel("单按钮映射", 28))
-        mappingStatus = textView("映射：未启动", 14f, Color.rgb(170, 181, 196))
+        mappingStatus = textView("映射：未启动", 14f, Color.rgb(90, 100, 114))
         root.addView(mappingStatus)
         val config = MappingPrefs.load(this)
         layoutSummary = textView(
@@ -178,24 +178,28 @@ class HighRiskActivity : Activity() {
                 "目标位置：未设置\n新按钮：未设置"
             },
             14f,
-            Color.rgb(170, 181, 196),
+            Color.rgb(90, 100, 114),
             8,
         )
         root.addView(layoutSummary)
-        screenshotSummary = textView("未使用截图，编辑器将使用空白画布", 13f, Color.rgb(170, 181, 196), 8)
+        screenshotSummary = textView("未使用截图，编辑器将使用空白画布", 13f, Color.rgb(90, 100, 114), 8)
         root.addView(screenshotSummary)
-        root.addView(actionButton("上传游戏截图", false).apply {
+        val uploadEditRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+        }
+        uploadEditRow.addView(actionButton("上传截图", false).apply {
             setOnClickListener {
                 RuntimeProtection.recordEvent(this@HighRiskActivity, "点击上传高风险截图")
                 chooseScreenshot()
             }
-        }, LinearLayout.LayoutParams(-1, dp(48)).apply { topMargin = dp(12) })
-        root.addView(actionButton("编辑按钮位置", true).apply {
+        }, LinearLayout.LayoutParams(0, dp(52), 1f))
+        uploadEditRow.addView(actionButton("编辑映射", true).apply {
             setOnClickListener {
                 RuntimeProtection.recordEvent(this@HighRiskActivity, "点击编辑高风险按钮位置")
                 openEditorFromSavedConfig()
             }
-        }, LinearLayout.LayoutParams(-1, dp(52)).apply { topMargin = dp(10) })
+        }, LinearLayout.LayoutParams(0, dp(52), 1f).apply { leftMargin = dp(10) })
+        root.addView(uploadEditRow, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
         highStartStopButton = stateButton("启动映射").apply {
             setOnClickListener {
                 if (HighRiskOverlayService.isRunning) {
@@ -213,14 +217,14 @@ class HighRiskActivity : Activity() {
         root.addView(textView(
             "运行时只显示新按钮。短按产生一次目标点击；长按、拖动和其他自动操作均不会执行。",
             12f,
-            Color.rgb(133, 146, 164),
+            Color.rgb(122, 132, 148),
             16,
         ))
 
         root.addView(sectionLabel("高级", 28))
         highAdvancedToggle = textView("高级设置（点击展开）", 13f, Color.rgb(116, 167, 255), 6).apply {
             setPadding(dp(14), dp(12), dp(14), dp(12))
-            background = roundedBackground(Color.rgb(22, 27, 35), Color.rgb(42, 52, 68))
+            background = roundedBackground(Color.rgb(255, 255, 255), Color.rgb(226, 230, 236))
             isClickable = true
             setOnClickListener { toggleAdvanced() }
         }
@@ -275,10 +279,10 @@ class HighRiskActivity : Activity() {
         textSize = 15f
         stateListAnimator = null
         setPadding(dp(12), 0, dp(12), 0)
-        setTextColor(Color.rgb(244, 247, 251))
+        setTextColor(Color.rgb(26, 31, 39))
         background = GradientDrawable().apply {
             cornerRadius = dp(10).toFloat()
-            setColor(Color.rgb(22, 34, 54))
+            setColor(Color.rgb(226, 234, 246))
             setStroke(dp(1), Color.rgb(116, 167, 255))
         }
     }
@@ -287,11 +291,11 @@ class HighRiskActivity : Activity() {
         if (!::highStartStopButton.isInitialized) return
         highStartStopButton.text = if (running) "正在映射，点击停止" else "启动映射"
         highStartStopButton.setTextColor(
-            if (running) Color.rgb(9, 17, 28) else Color.rgb(244, 247, 251),
+            if (running) Color.rgb(9, 17, 28) else Color.rgb(26, 31, 39),
         )
         highStartStopButton.background = GradientDrawable().apply {
             cornerRadius = dp(10).toFloat()
-            setColor(if (running) Color.rgb(102, 217, 163) else Color.rgb(22, 34, 54))
+            setColor(if (running) Color.rgb(102, 217, 163) else Color.rgb(226, 234, 246))
             setStroke(
                 dp(1),
                 if (running) Color.rgb(102, 217, 163) else Color.rgb(116, 167, 255),
@@ -321,9 +325,9 @@ class HighRiskActivity : Activity() {
         }
         accessibilityStatus.setTextColor(
             if (accessibilityEnabled && accessibilityConnected) {
-                Color.rgb(102, 217, 163)
+                Color.rgb(24, 130, 90)
             } else {
-                Color.rgb(255, 193, 107)
+                Color.rgb(176, 122, 26)
             },
         )
         val config = MappingPrefs.load(this)
@@ -511,12 +515,13 @@ class HighRiskActivity : Activity() {
     private fun actionButton(text: String, primary: Boolean): Button = Button(this).apply {
         this.text = text
         isAllCaps = false
+        maxLines = 1
         textSize = 15f
-        setTextColor(if (primary) Color.rgb(9, 17, 28) else Color.rgb(244, 247, 251))
+        setTextColor(if (primary) Color.rgb(9, 17, 28) else Color.rgb(26, 31, 39))
         background = GradientDrawable().apply {
             cornerRadius = dp(10).toFloat()
-            setColor(if (primary) Color.rgb(116, 167, 255) else Color.rgb(32, 41, 56))
-            setStroke(dp(1), if (primary) Color.rgb(116, 167, 255) else Color.rgb(64, 80, 104))
+            setColor(if (primary) Color.rgb(116, 167, 255) else Color.rgb(232, 236, 242))
+            setStroke(dp(1), if (primary) Color.rgb(116, 167, 255) else Color.rgb(206, 212, 222))
         }
         stateListAnimator = null
         setPadding(dp(12), 0, dp(12), 0)

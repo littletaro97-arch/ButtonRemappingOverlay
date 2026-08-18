@@ -39,8 +39,8 @@ class LongPressActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         RuntimeProtection.recordEvent(this, "打开长按触发模式页面")
-        window.statusBarColor = Color.rgb(14, 17, 22)
-        window.navigationBarColor = Color.rgb(14, 17, 22)
+        window.statusBarColor = Color.rgb(247, 248, 250)
+        window.navigationBarColor = Color.rgb(247, 248, 250)
         setContentView(createContent())
         confirmRiskEntry()
     }
@@ -102,7 +102,7 @@ class LongPressActivity : Activity() {
 
     private fun createContent(): View {
         val scrollView = ScrollView(this).apply {
-            setBackgroundColor(Color.rgb(14, 17, 22))
+            setBackgroundColor(Color.rgb(247, 248, 250))
             isFillViewport = true
             isVerticalScrollBarEnabled = false
             isHorizontalScrollBarEnabled = false
@@ -133,45 +133,49 @@ class LongPressActivity : Activity() {
         val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         scrollView.addView(root, LinearLayout.LayoutParams(-1, -2))
 
-        root.addView(textView("长按触发模式", 26f, Color.rgb(244, 247, 251)))
+        root.addView(textView("长按触发模式", 26f, Color.rgb(26, 31, 39)))
         root.addView(textView(
             "在指定位置把按一下触发变为长按满设定时间才触发，防止误触。",
             14f,
-            Color.rgb(170, 181, 196),
+            Color.rgb(90, 100, 114),
             top = 8,
         ))
         root.addView(textView(
             "中风险方案：需要无障碍（或 Shizuku）注入权限。仅在长按满设定时间后注入一次点击；游戏若检测注入可能有封号风险。",
             13f,
-            Color.rgb(255, 193, 107),
+            Color.rgb(176, 122, 26),
             top = 14,
         ))
 
         root.addView(sectionLabel("长按触发区域"), LinearLayout.LayoutParams(-1, -2).apply {
             topMargin = dp(28)
         })
-        screenshotSummary = textView("未上传游戏截图", 14f, Color.rgb(170, 181, 196))
+        screenshotSummary = textView("未上传游戏截图", 14f, Color.rgb(90, 100, 114))
         root.addView(screenshotSummary)
-        root.addView(actionButton("上传游戏截图", true).apply {
+        val uploadEditRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+        }
+        uploadEditRow.addView(actionButton("上传截图", true).apply {
             setOnClickListener {
                 RuntimeProtection.recordEvent(this@LongPressActivity, "点击上传长按触发截图")
                 chooseScreenshot()
             }
-        }, LinearLayout.LayoutParams(-1, dp(52)).apply { topMargin = dp(10) })
-        root.addView(actionButton("编辑长按区域", false).apply {
+        }, LinearLayout.LayoutParams(0, dp(52), 1f))
+        uploadEditRow.addView(actionButton("编辑长按区", false).apply {
             setOnClickListener {
                 RuntimeProtection.recordEvent(this@LongPressActivity, "点击编辑长按区域")
                 openEditorFromSavedConfig()
             }
-        }, LinearLayout.LayoutParams(-1, dp(52)).apply { topMargin = dp(12) })
+        }, LinearLayout.LayoutParams(0, dp(52), 1f).apply { leftMargin = dp(10) })
+        root.addView(uploadEditRow, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
 
         val areaBox = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(16), dp(14), dp(16), dp(14))
-            background = roundedBackground(Color.rgb(22, 27, 35), Color.rgb(42, 52, 68))
+            background = roundedBackground(Color.rgb(255, 255, 255), Color.rgb(226, 230, 236))
         }
-        areaBox.addView(textView("当前长按区域", 17f, Color.rgb(244, 247, 251)))
-        areaSummary = textView("读取布局中…", 13f, Color.rgb(170, 181, 196), top = 7)
+        areaBox.addView(textView("当前长按区域", 17f, Color.rgb(26, 31, 39)))
+        areaSummary = textView("读取布局中…", 13f, Color.rgb(90, 100, 114), top = 7)
         areaBox.addView(areaSummary)
         root.addView(areaBox, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(16) })
 
@@ -195,7 +199,7 @@ class LongPressActivity : Activity() {
         root.addView(textView(
             "长按区域可完全透明（区域不可见）或半透明（可见区域）。按下后中心显示进度圆环，满即触发。",
             12f,
-            Color.rgb(133, 146, 164),
+            Color.rgb(122, 132, 148),
             top = 16,
         ))
 
@@ -204,7 +208,7 @@ class LongPressActivity : Activity() {
         })
         advancedToggle = textView("高级设置（点击展开）", 13f, Color.rgb(116, 167, 255), 6).apply {
             setPadding(dp(14), dp(12), dp(14), dp(12))
-            background = roundedBackground(Color.rgb(22, 27, 35), Color.rgb(42, 52, 68))
+            background = roundedBackground(Color.rgb(255, 255, 255), Color.rgb(226, 230, 236))
             isClickable = true
             setOnClickListener { toggleAdvanced() }
         }
@@ -256,14 +260,14 @@ class LongPressActivity : Activity() {
         val box = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(14), dp(12), dp(14), dp(12))
-            background = roundedBackground(Color.rgb(22, 27, 35), Color.rgb(42, 52, 68))
+            background = roundedBackground(Color.rgb(255, 255, 255), Color.rgb(226, 230, 236))
         }
         val config = LongPressPrefs.load(this)
-        box.addView(textView("长按触发时间", 15f, Color.rgb(244, 247, 251)))
+        box.addView(textView("长按触发时间", 15f, Color.rgb(26, 31, 39)))
         longPressLabel = textView(
             "${config.longPressMs}ms（默认甜点值 500ms）",
             13f,
-            Color.rgb(170, 181, 196),
+            Color.rgb(90, 100, 114),
             top = 6,
         )
         box.addView(longPressLabel)
@@ -296,7 +300,7 @@ class LongPressActivity : Activity() {
         box.addView(textView(
             "调节长按满多久触发（300ms–3000ms，默认甜点值 500ms）。重启长按触发后生效。",
             12f,
-            Color.rgb(133, 146, 164),
+            Color.rgb(122, 132, 148),
             top = 8,
         ))
         return box
@@ -320,7 +324,7 @@ class LongPressActivity : Activity() {
         val config = LongPressPrefs.load(this)
         if (!config.hasScreenshot) {
             screenshotSummary.text = "未上传游戏截图"
-            screenshotSummary.setTextColor(Color.rgb(170, 181, 196))
+            screenshotSummary.setTextColor(Color.rgb(90, 100, 114))
             return
         }
         val geometry = OverlayGeometry.fromWindowManager(this)
@@ -332,7 +336,7 @@ class LongPressActivity : Activity() {
             "已上传：${config.screenshotWidth} × ${config.screenshotHeight}\n截图尺寸与当前屏幕不同，请重新截图"
         }
         screenshotSummary.setTextColor(
-            if (sameSize) Color.rgb(170, 181, 196) else Color.rgb(255, 193, 107),
+            if (sameSize) Color.rgb(90, 100, 114) else Color.rgb(176, 122, 26),
         )
     }
 
@@ -472,18 +476,18 @@ class LongPressActivity : Activity() {
         textSize = 15f
         stateListAnimator = null
         setPadding(dp(12), 0, dp(12), 0)
-        setTextColor(Color.rgb(244, 247, 251))
-        background = roundedBackground(Color.rgb(22, 34, 54), Color.rgb(116, 167, 255))
+        setTextColor(Color.rgb(26, 31, 39))
+        background = roundedBackground(Color.rgb(226, 234, 246), Color.rgb(116, 167, 255))
     }
 
     private fun updateStateButton(running: Boolean) {
         if (!::startStopButton.isInitialized) return
         startStopButton.text = if (running) "长按触发运行中，点击停止" else "启动长按触发"
         startStopButton.setTextColor(
-            if (running) Color.rgb(9, 17, 28) else Color.rgb(244, 247, 251),
+            if (running) Color.rgb(9, 17, 28) else Color.rgb(26, 31, 39),
         )
         startStopButton.background = roundedBackground(
-            if (running) Color.rgb(102, 217, 163) else Color.rgb(22, 34, 54),
+            if (running) Color.rgb(102, 217, 163) else Color.rgb(226, 234, 246),
             if (running) Color.rgb(102, 217, 163) else Color.rgb(116, 167, 255),
         )
     }
@@ -503,11 +507,12 @@ class LongPressActivity : Activity() {
     private fun actionButton(text: String, primary: Boolean): Button = Button(this).apply {
         this.text = text
         isAllCaps = false
+        maxLines = 1
         textSize = 15f
-        setTextColor(if (primary) Color.rgb(9, 17, 28) else Color.rgb(244, 247, 251))
+        setTextColor(if (primary) Color.rgb(9, 17, 28) else Color.rgb(26, 31, 39))
         background = roundedBackground(
-            if (primary) Color.rgb(116, 167, 255) else Color.rgb(32, 41, 56),
-            if (primary) Color.rgb(116, 167, 255) else Color.rgb(64, 80, 104),
+            if (primary) Color.rgb(116, 167, 255) else Color.rgb(232, 236, 242),
+            if (primary) Color.rgb(116, 167, 255) else Color.rgb(206, 212, 222),
         )
         stateListAnimator = null
         setPadding(dp(12), 0, dp(12), 0)

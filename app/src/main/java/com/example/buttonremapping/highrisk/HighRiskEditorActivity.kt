@@ -89,8 +89,8 @@ class HighRiskEditorActivity : Activity() {
             config = config.copy(coordinateRotation = Surface.ROTATION_90)
         }
 
-        window.statusBarColor = Color.rgb(14, 17, 22)
-        window.navigationBarColor = Color.rgb(14, 17, 22)
+        window.statusBarColor = Color.rgb(247, 248, 250)
+        window.navigationBarColor = Color.rgb(247, 248, 250)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.setDecorFitsSystemWindows(false)
         }
@@ -111,7 +111,7 @@ class HighRiskEditorActivity : Activity() {
     }
 
     private fun createEditor(): View {
-        editorRoot = FrameLayout(this).apply { setBackgroundColor(Color.rgb(7, 9, 12)) }
+        editorRoot = FrameLayout(this).apply { setBackgroundColor(Color.rgb(247, 248, 250)) }
         canvasView = MappingCanvasView(this, bitmap, sourceWidth, sourceHeight)
         editorRoot.addView(canvasView, FrameLayout.LayoutParams(-1, -1))
 
@@ -158,15 +158,15 @@ class HighRiskEditorActivity : Activity() {
         orientation = LinearLayout.HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
         setPadding(dp(14), dp(4), dp(14), dp(4))
-        background = GradientDrawable().apply { setColor(Color.argb(238, 22, 27, 35)) }
+        background = GradientDrawable().apply { setColor(Color.argb(238, 255, 255, 255)) }
         addView(TextView(this@HighRiskEditorActivity).apply {
             text = "单按钮映射布局"
             textSize = 17f
-            setTextColor(Color.rgb(244, 247, 251))
+            setTextColor(Color.rgb(26, 31, 39))
         }, LinearLayout.LayoutParams(0, -2, 0.8f))
         sizeHint = TextView(this@HighRiskEditorActivity).apply {
             textSize = 11f
-            setTextColor(Color.rgb(170, 181, 196))
+            setTextColor(Color.rgb(90, 100, 114))
             gravity = Gravity.CENTER_VERTICAL
             maxLines = 1
             ellipsize = android.text.TextUtils.TruncateAt.END
@@ -175,7 +175,7 @@ class HighRiskEditorActivity : Activity() {
         addView(TextView(this@HighRiskEditorActivity).apply {
             text = if (sourceUri == null) "空白画布" else "截图 ${sourceWidth}×${sourceHeight}"
             textSize = 12f
-            setTextColor(Color.rgb(170, 181, 196))
+            setTextColor(Color.rgb(90, 100, 114))
             gravity = Gravity.CENTER_VERTICAL
         }, LinearLayout.LayoutParams(-2, -1))
     }
@@ -183,7 +183,7 @@ class HighRiskEditorActivity : Activity() {
     private fun createBottomBar(): View = LinearLayout(this).apply {
         orientation = LinearLayout.VERTICAL
         setPadding(dp(12), dp(4), dp(12), dp(4))
-        background = GradientDrawable().apply { setColor(Color.argb(238, 22, 27, 35)) }
+        background = GradientDrawable().apply { setColor(Color.argb(238, 255, 255, 255)) }
 
         // 第一行：目标位置透明度 + 新按钮透明度（复用长按编辑器透明度滑块逻辑）。
         val opacityRow = LinearLayout(this@HighRiskEditorActivity).apply {
@@ -192,7 +192,7 @@ class HighRiskEditorActivity : Activity() {
         }
         targetOpacityLabel = TextView(this@HighRiskEditorActivity).apply {
             textSize = 12f
-            setTextColor(Color.rgb(170, 181, 196))
+            setTextColor(Color.rgb(90, 100, 114))
         }
         opacityRow.addView(targetOpacityLabel, LinearLayout.LayoutParams(dp(88), -2))
         opacityRow.addView(SeekBar(this@HighRiskEditorActivity).apply {
@@ -212,7 +212,7 @@ class HighRiskEditorActivity : Activity() {
 
         opacityLabel = TextView(this@HighRiskEditorActivity).apply {
             textSize = 12f
-            setTextColor(Color.rgb(170, 181, 196))
+            setTextColor(Color.rgb(90, 100, 114))
         }
         opacityRow.addView(opacityLabel, LinearLayout.LayoutParams(dp(88), -2).apply {
             leftMargin = dp(10)
@@ -240,7 +240,7 @@ class HighRiskEditorActivity : Activity() {
         }
         cornerLabel = TextView(this@HighRiskEditorActivity).apply {
             textSize = 12f
-            setTextColor(Color.rgb(170, 181, 196))
+            setTextColor(Color.rgb(90, 100, 114))
         }
         cornerRow.addView(cornerLabel, LinearLayout.LayoutParams(dp(88), -2))
         cornerRow.addView(SeekBar(this@HighRiskEditorActivity).apply {
@@ -376,7 +376,7 @@ class HighRiskEditorActivity : Activity() {
             "尺寸不一致：保存后启动会被拒绝"
         }
         sizeHint.setTextColor(
-            if (sameSize) Color.rgb(170, 181, 196) else Color.rgb(255, 193, 107),
+            if (sameSize) Color.rgb(90, 100, 114) else Color.rgb(176, 122, 26),
         )
     }
 

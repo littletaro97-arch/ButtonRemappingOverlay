@@ -22,7 +22,7 @@ class ScreenshotCanvasView(
 
     init {
         contentDescription = "游戏截图编辑画布"
-        setBackgroundColor(Color.rgb(7, 9, 12))
+        setBackgroundColor(Color.rgb(247, 248, 250))
     }
 
     fun contentRect(): Rect = Rect(imageBounds)

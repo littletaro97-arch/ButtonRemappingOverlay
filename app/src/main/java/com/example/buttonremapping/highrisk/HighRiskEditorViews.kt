@@ -18,14 +18,14 @@ class MappingCanvasView(
 ) : View(context) {
     private val bitmapPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
     private val gridPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.rgb(35, 45, 58)
+        color = Color.rgb(210, 216, 224)
         strokeWidth = resources.displayMetrics.density
     }
     private val imageBounds = Rect()
 
     init {
         contentDescription = "单按钮映射编辑画布"
-        setBackgroundColor(Color.rgb(7, 9, 12))
+        setBackgroundColor(Color.rgb(247, 248, 250))
     }
 
     fun contentRect(): Rect = Rect(imageBounds)
@@ -37,7 +37,7 @@ class MappingCanvasView(
         if (bitmap != null) {
             canvas.drawBitmap(bitmap, null, imageBounds, bitmapPaint)
         } else {
-            canvas.drawColor(Color.rgb(12, 16, 22))
+            canvas.drawColor(Color.rgb(247, 248, 250))
             val step = (width / 12f).coerceAtLeast(80f)
             var x = 0f
             while (x <= width) {

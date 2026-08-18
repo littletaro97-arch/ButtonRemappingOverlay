@@ -32,4 +32,4 @@ work/
 touch-interaction-probe/
 
 # Scratch screenshots at repo root
-*.png
+/*.png

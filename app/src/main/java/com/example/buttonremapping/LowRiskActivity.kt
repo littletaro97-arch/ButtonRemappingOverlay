@@ -41,8 +41,8 @@ class LowRiskActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         RuntimeProtection.recordEvent(this, "打开屏蔽区域模式页面")
-        window.statusBarColor = Color.rgb(14, 17, 22)
-        window.navigationBarColor = Color.rgb(14, 17, 22)
+        window.statusBarColor = Color.rgb(247, 248, 250)
+        window.navigationBarColor = Color.rgb(247, 248, 250)
         setContentView(createContent())
     }
 
@@ -106,31 +106,35 @@ class LowRiskActivity : Activity() {
         }
         scrollView.addView(root, LinearLayout.LayoutParams(-1, -2))
 
-        root.addView(textView("屏蔽区域模式", 26f, Color.rgb(244, 247, 251)))
+        root.addView(textView("屏蔽区域模式", 26f, Color.rgb(26, 31, 39)))
         root.addView(textView(
             "屏蔽区域模式：截图辅助设置一个屏蔽区域，悬浮开关可临时恢复触摸。",
             14f,
-            Color.rgb(170, 181, 196),
+            Color.rgb(90, 100, 114),
             top = 8,
         ))
 
         root.addView(sectionLabel("游戏截图布局"), LinearLayout.LayoutParams(-1, -2).apply {
             topMargin = dp(28)
         })
-        screenshotSummary = textView("未上传游戏截图", 14f, Color.rgb(170, 181, 196))
+        screenshotSummary = textView("未上传游戏截图", 14f, Color.rgb(90, 100, 114))
         root.addView(screenshotSummary)
-        root.addView(actionButton("上传游戏截图", primary = true).apply {
+        val uploadEditRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+        }
+        uploadEditRow.addView(actionButton("上传截图", primary = true).apply {
             setOnClickListener {
                 RuntimeProtection.recordEvent(this@LowRiskActivity, "点击上传游戏截图")
                 chooseScreenshot()
             }
-        }, LinearLayout.LayoutParams(-1, dp(52)).apply { topMargin = dp(10) })
-        root.addView(actionButton("编辑屏蔽区域", primary = false).apply {
+        }, LinearLayout.LayoutParams(0, dp(52), 1f))
+        uploadEditRow.addView(actionButton("编辑屏蔽区", primary = false).apply {
             setOnClickListener {
                 RuntimeProtection.recordEvent(this@LowRiskActivity, "点击编辑屏蔽区域")
                 openEditor()
             }
-        }, LinearLayout.LayoutParams(-1, dp(52)).apply { topMargin = dp(12) })
+        }, LinearLayout.LayoutParams(0, dp(52), 1f).apply { leftMargin = dp(10) })
+        root.addView(uploadEditRow, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
 
         root.addView(sectionLabel("当前屏蔽区域"), LinearLayout.LayoutParams(-1, -2).apply {
             topMargin = dp(28)
@@ -138,17 +142,17 @@ class LowRiskActivity : Activity() {
         val layoutBox = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(16), dp(14), dp(16), dp(14))
-            background = roundedBackground(Color.rgb(22, 27, 35), Color.rgb(42, 52, 68))
+            background = roundedBackground(Color.rgb(255, 255, 255), Color.rgb(226, 230, 236))
         }
-        layoutBox.addView(textView("已设置", 17f, Color.rgb(244, 247, 251)))
-        layoutSummary = textView("读取布局中…", 13f, Color.rgb(170, 181, 196), top = 7)
+        layoutBox.addView(textView("已设置", 17f, Color.rgb(26, 31, 39)))
+        layoutSummary = textView("读取布局中…", 13f, Color.rgb(90, 100, 114), top = 7)
         layoutBox.addView(layoutSummary)
         root.addView(layoutBox, LinearLayout.LayoutParams(-1, -2))
 
         root.addView(sectionLabel("悬浮屏蔽开关"), LinearLayout.LayoutParams(-1, -2).apply {
             topMargin = dp(28)
         })
-        overlayRuntimeStatus = textView("屏蔽：未启动", 14f, Color.rgb(170, 181, 196))
+        overlayRuntimeStatus = textView("屏蔽：未启动", 14f, Color.rgb(90, 100, 114))
         root.addView(overlayRuntimeStatus)
         lowStartStopButton = stateButton("启动屏蔽").apply {
             setOnClickListener {
@@ -167,7 +171,7 @@ class LowRiskActivity : Activity() {
         root.addView(textView(
             "运行中：红色开关表示已屏蔽，绿色表示当前允许点击。长按悬浮开关可拖动位置。",
             12f,
-            Color.rgb(133, 146, 164),
+            Color.rgb(122, 132, 148),
             top = 18,
         ))
 
@@ -176,7 +180,7 @@ class LowRiskActivity : Activity() {
         })
         advancedToggle = textView("高级设置（点击展开）", 13f, Color.rgb(116, 167, 255), 6).apply {
             setPadding(dp(14), dp(12), dp(14), dp(12))
-            background = roundedBackground(Color.rgb(22, 27, 35), Color.rgb(42, 52, 68))
+            background = roundedBackground(Color.rgb(255, 255, 255), Color.rgb(226, 230, 236))
             isClickable = true
             setOnClickListener { toggleAdvanced() }
         }
@@ -236,14 +240,14 @@ class LowRiskActivity : Activity() {
         val box = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(14), dp(12), dp(14), dp(12))
-            background = roundedBackground(Color.rgb(22, 27, 35), Color.rgb(42, 52, 68))
+            background = roundedBackground(Color.rgb(255, 255, 255), Color.rgb(226, 230, 236))
         }
         val config = LayoutPrefs.load(this)
-        box.addView(textView("悬浮开关透明度", 15f, Color.rgb(244, 247, 251)))
+        box.addView(textView("悬浮开关透明度", 15f, Color.rgb(26, 31, 39)))
         val percentView = textView(
             "${(config.toggleAlpha * 100f).roundToInt()}%",
             13f,
-            Color.rgb(170, 181, 196),
+            Color.rgb(90, 100, 114),
             top = 6,
         )
         box.addView(percentView)
@@ -278,7 +282,7 @@ class LowRiskActivity : Activity() {
         box.addView(textView(
             "调节红色“屏蔽”/绿色“允许”悬浮开关的透明度（20%–100%），拖动即时生效。",
             12f,
-            Color.rgb(133, 146, 164),
+            Color.rgb(122, 132, 148),
             top = 8,
         ))
         return box
@@ -293,18 +297,18 @@ class LowRiskActivity : Activity() {
         textSize = 15f
         stateListAnimator = null
         setPadding(dp(12), 0, dp(12), 0)
-        setTextColor(Color.rgb(244, 247, 251))
-        background = roundedBackground(Color.rgb(22, 34, 54), Color.rgb(116, 167, 255))
+        setTextColor(Color.rgb(26, 31, 39))
+        background = roundedBackground(Color.rgb(226, 234, 246), Color.rgb(116, 167, 255))
     }
 
     private fun updateStateButton(running: Boolean) {
         if (!::lowStartStopButton.isInitialized) return
         lowStartStopButton.text = if (running) "正在屏蔽，点击停止" else "启动屏蔽"
         lowStartStopButton.setTextColor(
-            if (running) Color.rgb(9, 17, 28) else Color.rgb(244, 247, 251),
+            if (running) Color.rgb(9, 17, 28) else Color.rgb(26, 31, 39),
         )
         lowStartStopButton.background = roundedBackground(
-            if (running) Color.rgb(102, 217, 163) else Color.rgb(22, 34, 54),
+            if (running) Color.rgb(102, 217, 163) else Color.rgb(226, 234, 246),
             if (running) Color.rgb(102, 217, 163) else Color.rgb(116, 167, 255),
         )
     }
@@ -395,7 +399,7 @@ class LowRiskActivity : Activity() {
         val config = LayoutPrefs.load(this)
         if (!config.hasScreenshot) {
             screenshotSummary.text = "未上传游戏截图"
-            screenshotSummary.setTextColor(Color.rgb(170, 181, 196))
+            screenshotSummary.setTextColor(Color.rgb(90, 100, 114))
             return
         }
         val geometry = OverlayGeometry.fromWindowManager(this)
@@ -411,7 +415,7 @@ class LowRiskActivity : Activity() {
             "已上传：${config.screenshotWidth} × ${config.screenshotHeight}\n截图尺寸与当前屏幕不同，请重新截图"
         }
         screenshotSummary.setTextColor(
-            if (sameSize) Color.rgb(170, 181, 196) else Color.rgb(255, 193, 107),
+            if (sameSize) Color.rgb(90, 100, 114) else Color.rgb(176, 122, 26),
         )
     }
 
@@ -479,7 +483,7 @@ class LowRiskActivity : Activity() {
     }
 
     private fun baseScrollView(): ScrollView = ScrollView(this).apply {
-        setBackgroundColor(Color.rgb(14, 17, 22))
+        setBackgroundColor(Color.rgb(247, 248, 250))
         isFillViewport = true
         isVerticalScrollBarEnabled = false
         isHorizontalScrollBarEnabled = false
@@ -523,11 +527,12 @@ class LowRiskActivity : Activity() {
     private fun actionButton(text: String, primary: Boolean): Button = Button(this).apply {
         this.text = text
         isAllCaps = false
+        maxLines = 1
         textSize = 15f
-        setTextColor(if (primary) Color.rgb(9, 17, 28) else Color.rgb(244, 247, 251))
+        setTextColor(if (primary) Color.rgb(9, 17, 28) else Color.rgb(26, 31, 39))
         background = roundedBackground(
-            if (primary) Color.rgb(116, 167, 255) else Color.rgb(32, 41, 56),
-            if (primary) Color.rgb(116, 167, 255) else Color.rgb(64, 80, 104),
+            if (primary) Color.rgb(116, 167, 255) else Color.rgb(232, 236, 242),
+            if (primary) Color.rgb(116, 167, 255) else Color.rgb(206, 212, 222),
         )
         stateListAnimator = null
         setPadding(dp(12), 0, dp(12), 0)

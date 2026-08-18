@@ -40,8 +40,8 @@ class EditorActivity : Activity() {
         RuntimeProtection.recordEvent(this, "打开低风险空白布局编辑器")
         stopService(android.content.Intent(this, OverlayService::class.java))
         config = LayoutPrefs.load(this)
-        window.statusBarColor = Color.rgb(14, 17, 22)
-        window.navigationBarColor = Color.rgb(14, 17, 22)
+        window.statusBarColor = Color.rgb(247, 248, 250)
+        window.navigationBarColor = Color.rgb(247, 248, 250)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.setDecorFitsSystemWindows(false)
         } else {
@@ -62,7 +62,7 @@ class EditorActivity : Activity() {
 
     private fun createEditor(): View {
         editorRoot = FrameLayout(this).apply {
-            setBackgroundColor(Color.rgb(14, 17, 22))
+            setBackgroundColor(Color.rgb(247, 248, 250))
             setOnApplyWindowInsetsListener { _, insets ->
                 windowInsets = insets
                 refreshGeometry()
@@ -117,12 +117,12 @@ class EditorActivity : Activity() {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
             setPadding(dp(14), dp(4), dp(14), dp(4))
-            background = GradientDrawable().apply { setColor(Color.argb(232, 22, 27, 35)) }
+            background = GradientDrawable().apply { setColor(Color.argb(232, 255, 255, 255)) }
         }
         val title = TextView(this).apply {
             text = "布局编辑 · 横屏"
             textSize = 17f
-            setTextColor(Color.rgb(244, 247, 251))
+            setTextColor(Color.rgb(26, 31, 39))
         }
         bar.addView(title, LinearLayout.LayoutParams(0, -2, 1f))
         bar.addView(Button(this).apply {
@@ -147,11 +147,11 @@ class EditorActivity : Activity() {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
             setPadding(dp(12), dp(2), dp(12), dp(2))
-            background = GradientDrawable().apply { setColor(Color.argb(232, 22, 27, 35)) }
+            background = GradientDrawable().apply { setColor(Color.argb(232, 255, 255, 255)) }
         }
         blockedOpacityLabel = TextView(this).apply {
             textSize = 12f
-            setTextColor(Color.rgb(170, 181, 196))
+            setTextColor(Color.rgb(90, 100, 114))
         }
         bar.addView(blockedOpacityLabel, LinearLayout.LayoutParams(dp(76), -2))
         blockedOpacitySeekBar = createSeekBar(
@@ -166,7 +166,7 @@ class EditorActivity : Activity() {
         bar.addView(blockedOpacitySeekBar, LinearLayout.LayoutParams(0, dp(28), 1f))
         blockedCornerLabel = TextView(this).apply {
             textSize = 12f
-            setTextColor(Color.rgb(170, 181, 196))
+            setTextColor(Color.rgb(90, 100, 114))
         }
         bar.addView(blockedCornerLabel, LinearLayout.LayoutParams(dp(76), -2).apply {
             leftMargin = dp(10)
@@ -314,7 +314,7 @@ class EditorBackdropView(context: android.content.Context) : View(context) {
     }
     override fun onDraw(canvas: android.graphics.Canvas) {
         super.onDraw(canvas)
-        canvas.drawColor(Color.rgb(14, 17, 22))
+        canvas.drawColor(Color.rgb(247, 248, 250))
         val full = geometry?.fullBounds ?: return
         canvas.drawRect(full, borderPaint)
     }

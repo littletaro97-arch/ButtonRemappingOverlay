@@ -35,8 +35,8 @@ class RuntimeProtectionActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         RuntimeProtection.recordEvent(this, "打开权限与运行保障")
-        window.statusBarColor = Color.rgb(14, 17, 22)
-        window.navigationBarColor = Color.rgb(14, 17, 22)
+        window.statusBarColor = Color.rgb(247, 248, 250)
+        window.navigationBarColor = Color.rgb(247, 248, 250)
         setContentView(createContent())
     }
 
@@ -69,7 +69,7 @@ class RuntimeProtectionActivity : Activity() {
 
     private fun createContent(): View {
         val scrollView = ScrollView(this).apply {
-            setBackgroundColor(Color.rgb(14, 17, 22))
+            setBackgroundColor(Color.rgb(247, 248, 250))
             isFillViewport = true
             isVerticalScrollBarEnabled = false
             isHorizontalScrollBarEnabled = false
@@ -96,19 +96,19 @@ class RuntimeProtectionActivity : Activity() {
         }
         scrollView.addView(root, LinearLayout.LayoutParams(-1, -2))
 
-        root.addView(textView("权限与运行保障", 26f, Color.rgb(244, 247, 251)))
-        summaryView = textView("检查中…", 14f, Color.rgb(170, 181, 196), 8)
+        root.addView(textView("权限与运行保障", 26f, Color.rgb(26, 31, 39)))
+        summaryView = textView("检查中…", 14f, Color.rgb(90, 100, 114), 8)
         root.addView(summaryView)
         root.addView(textView(
             "悬浮窗是运行必需权限；通知和电池设置用于降低服务被系统关闭的概率。",
             13f,
-            Color.rgb(170, 181, 196),
+            Color.rgb(90, 100, 114),
             8,
         ))
 
-        vendorNotice = textView("", 13f, Color.rgb(255, 193, 107), 18).apply {
+        vendorNotice = textView("", 13f, Color.rgb(176, 122, 26), 18).apply {
             setPadding(dp(12), dp(10), dp(12), dp(10))
-            background = roundedBackground(Color.rgb(45, 36, 24), Color.rgb(130, 95, 48))
+            background = roundedBackground(Color.rgb(255, 245, 220), Color.rgb(214, 176, 106))
             visibility = View.GONE
         }
         root.addView(vendorNotice)
@@ -157,7 +157,7 @@ class RuntimeProtectionActivity : Activity() {
             description = "部分 vivo / iQOO / OPPO / 小米设备可能清理后台服务。",
         )
         taskRow.status.text = "需要用户手动完成"
-        taskRow.status.setTextColor(Color.rgb(255, 193, 107))
+        taskRow.status.setTextColor(Color.rgb(176, 122, 26))
         taskRow.button.text = "查看方法"
         taskRow.button.setOnClickListener { showTaskLockGuide() }
         root.addView(taskRow.container)
@@ -165,7 +165,7 @@ class RuntimeProtectionActivity : Activity() {
         root.addView(sectionLabel("运行诊断", 28))
         diagnosticsToggle = textView("运行诊断详情（点击展开）", 13f, Color.rgb(116, 167, 255), 6).apply {
             setPadding(dp(14), dp(12), dp(14), dp(12))
-            background = roundedBackground(Color.rgb(22, 27, 35), Color.rgb(42, 52, 68))
+            background = roundedBackground(Color.rgb(255, 255, 255), Color.rgb(226, 230, 236))
             isClickable = true
             setOnClickListener { toggleDiagnostics() }
         }
@@ -174,9 +174,9 @@ class RuntimeProtectionActivity : Activity() {
             orientation = LinearLayout.VERTICAL
             visibility = View.GONE
         }
-        diagnosticsView = textView("检查中…", 13f, Color.rgb(170, 181, 196), 8).apply {
+        diagnosticsView = textView("检查中…", 13f, Color.rgb(90, 100, 114), 8).apply {
             setPadding(dp(14), dp(12), dp(14), dp(12))
-            background = roundedBackground(Color.rgb(22, 27, 35), Color.rgb(42, 52, 68))
+            background = roundedBackground(Color.rgb(255, 255, 255), Color.rgb(226, 230, 236))
         }
         diagnosticsContent.addView(diagnosticsView)
         diagnosticsContent.addView(actionButton("复制诊断与操作日志", false).apply {
@@ -189,7 +189,7 @@ class RuntimeProtectionActivity : Activity() {
         root.addView(textView(
             AppContact.displayText,
             12f,
-            Color.rgb(133, 146, 164),
+            Color.rgb(122, 132, 148),
             18,
         ))
 
@@ -311,14 +311,14 @@ class RuntimeProtectionActivity : Activity() {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
             setPadding(dp(14), dp(12), dp(10), dp(12))
-            background = roundedBackground(Color.rgb(22, 27, 35), Color.rgb(42, 52, 68))
+            background = roundedBackground(Color.rgb(255, 255, 255), Color.rgb(226, 230, 236))
         }
         val textColumn = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
         }
-        textColumn.addView(textView(title, 16f, Color.rgb(244, 247, 251)))
-        textColumn.addView(textView(description, 12f, Color.rgb(170, 181, 196), 5))
-        val status = textView("检查中…", 13f, Color.rgb(170, 181, 196), 7)
+        textColumn.addView(textView(title, 16f, Color.rgb(26, 31, 39)))
+        textColumn.addView(textView(description, 12f, Color.rgb(90, 100, 114), 5))
+        val status = textView("检查中…", 13f, Color.rgb(90, 100, 114), 7)
         textColumn.addView(status)
         container.addView(textColumn, LinearLayout.LayoutParams(0, -2, 1f))
         val button = actionButton("去设置", false).apply {
@@ -346,10 +346,10 @@ class RuntimeProtectionActivity : Activity() {
         this.text = text
         isAllCaps = false
         textSize = 13f
-        setTextColor(if (primary) Color.rgb(9, 17, 28) else Color.rgb(244, 247, 251))
+        setTextColor(if (primary) Color.rgb(9, 17, 28) else Color.rgb(26, 31, 39))
         background = roundedBackground(
-            if (primary) Color.rgb(116, 167, 255) else Color.rgb(32, 41, 56),
-            if (primary) Color.rgb(116, 167, 255) else Color.rgb(64, 80, 104),
+            if (primary) Color.rgb(116, 167, 255) else Color.rgb(232, 236, 242),
+            if (primary) Color.rgb(116, 167, 255) else Color.rgb(206, 212, 222),
         )
         stateListAnimator = null
         setPadding(dp(8), 0, dp(8), 0)
@@ -372,8 +372,8 @@ class RuntimeProtectionActivity : Activity() {
 
     companion object {
         private const val REQUEST_NOTIFICATION = 6001
-        private val GREEN = Color.rgb(102, 217, 163)
-        private val YELLOW = Color.rgb(255, 193, 107)
-        private val RED = Color.rgb(255, 130, 127)
+        private val GREEN = Color.rgb(24, 130, 90)
+        private val YELLOW = Color.rgb(176, 122, 26)
+        private val RED = Color.rgb(200, 60, 60)
     }
 }

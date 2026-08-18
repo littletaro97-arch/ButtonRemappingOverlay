@@ -12,6 +12,7 @@ import android.os.Bundle
 import android.view.Gravity
 import android.view.View
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -27,8 +28,8 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         RuntimeProtection.recordEvent(this, "应用启动")
-        window.statusBarColor = Color.rgb(14, 17, 22)
-        window.navigationBarColor = Color.rgb(14, 17, 22)
+        window.statusBarColor = Color.rgb(247, 248, 250)
+        window.navigationBarColor = Color.rgb(247, 248, 250)
         ProfileManager.list(this, ProfileMode.LOW)
         ProfileManager.list(this, ProfileMode.HIGH)
         showModeSelection()
@@ -78,35 +79,40 @@ class MainActivity : Activity() {
         startActivity(Intent(this, LongPressActivity::class.java))
     }
 
+    private fun showHighRiskMode() {
+        RuntimeProtection.recordEvent(this, "进入修改键位模式")
+        startActivity(Intent(this, HighRiskActivity::class.java))
+    }
+
     private fun createModeSelection(): View {
         val scrollView = baseScrollView()
         val root = baseRoot()
         scrollView.addView(root, LinearLayout.LayoutParams(-1, -2))
 
-        root.addView(textView("游戏按钮映射", 26f, Color.rgb(244, 247, 251)))
+        root.addView(textView("游戏按钮映射", 26f, Color.rgb(26, 31, 39)))
         root.addView(modePanel(
             title = "屏蔽区域模式",
-            description = "屏蔽误触按钮区域，并用悬浮开关临时恢复触摸。",
+            description = "屏蔽目标区域，使用专用开关按需解锁",
             buttonText = "进入",
             enabled = true,
-            badge = badgeChip("低风险方案", Color.rgb(102, 217, 163), Color.rgb(24, 58, 44)),
+            badge = badgeChip("低风险", Color.rgb(102, 217, 163), Color.rgb(24, 58, 44)),
             onClick = { showLowRiskMode() },
         ), LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(24) })
         root.addView(modePanel(
             title = "长按触发模式",
-            description = "把按一下触发的按钮变为长按满时间才触发，防止误触。",
+            description = "短按操作变更为长按",
             buttonText = "进入",
             enabled = true,
-            badge = badgeChip("中风险方案", Color.rgb(255, 193, 107), Color.rgb(64, 48, 24)),
+            badge = badgeChip("中风险", Color.rgb(255, 193, 107), Color.rgb(64, 48, 24)),
             onClick = { showLongPressMode() },
         ), LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
         root.addView(modePanel(
             title = "修改键位模式",
-            description = "单按钮位置映射：一次人工点击对应一次目标 Tap。",
+            description = "屏蔽目标区域，修改目标位置的触发位置",
             buttonText = "进入",
             enabled = true,
-            badge = badgeChip("中风险方案", Color.rgb(255, 193, 107), Color.rgb(64, 48, 24)),
-            onClick = { confirmHighRiskEntry() },
+            badge = badgeChip("中风险", Color.rgb(255, 193, 107), Color.rgb(64, 48, 24)),
+            onClick = { showHighRiskMode() },
         ), LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
         root.addView(modePanel(
             title = "设置",
@@ -126,16 +132,14 @@ class MainActivity : Activity() {
             detail = "小红书号：${AppContact.XHS_ID} · 昵称：${AppContact.XHS_NAME}",
             url = AppContact.XHS_URL,
             appPackage = AppContact.XHS_PACKAGE,
-            iconText = "红",
-            iconColor = Color.rgb(255, 36, 66),
+            iconRes = R.drawable.ic_xhs,
         ), LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
         root.addView(contactRow(
             name = "bilibili",
             detail = "UID：${AppContact.BILI_UID} · 昵称：${AppContact.BILI_NAME}",
             url = AppContact.BILI_URL,
             appPackage = AppContact.BILI_PACKAGE,
-            iconText = "B",
-            iconColor = Color.rgb(0, 161, 214),
+            iconRes = R.drawable.ic_bili,
         ), LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
         return scrollView
     }
@@ -145,45 +149,38 @@ class MainActivity : Activity() {
         detail: String,
         url: String,
         appPackage: String?,
-        iconText: String,
-        iconColor: Int,
+        iconRes: Int,
     ): View = LinearLayout(this).apply {
         orientation = LinearLayout.HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
         setPadding(dp(16), dp(14), dp(16), dp(14))
-        background = roundedBackground(Color.rgb(22, 27, 35), Color.rgb(42, 52, 68))
+        background = roundedBackground(Color.rgb(255, 255, 255), Color.rgb(226, 230, 236))
         isClickable = true
         setOnClickListener {
             RuntimeProtection.recordEvent(this@MainActivity, "打开问题反馈主页", name)
             openContactPage(url, appPackage)
         }
         // 左：品牌图标。
-        addView(contactIcon(iconText, iconColor), LinearLayout.LayoutParams(dp(40), dp(40)))
+        addView(ImageView(this@MainActivity).apply {
+            setImageResource(iconRes)
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            adjustViewBounds = true
+            contentDescription = name
+        }, LinearLayout.LayoutParams(dp(40), dp(40)))
         // 中：联系方式。
         addView(LinearLayout(this@MainActivity).apply {
             orientation = LinearLayout.VERTICAL
-            addView(textView(name, 15f, Color.rgb(244, 247, 251)))
-            addView(textView(detail, 12f, Color.rgb(170, 181, 196), top = 2))
+            addView(textView(name, 15f, Color.rgb(26, 31, 39)))
+            addView(textView(detail, 12f, Color.rgb(90, 100, 114), top = 2))
         }, LinearLayout.LayoutParams(0, -2, 1f).apply { leftMargin = dp(12) })
         // 右：跳转入口。
         addView(badgeChip(
             "点击跳转",
             Color.rgb(116, 167, 255),
-            Color.rgb(22, 34, 54),
+            Color.rgb(226, 234, 246),
         ), LinearLayout.LayoutParams(-2, -2).apply {
             leftMargin = dp(10)
         })
-    }
-
-    private fun contactIcon(text: String, color: Int): TextView = TextView(this).apply {
-        this.text = text
-        textSize = 16f
-        setTextColor(Color.WHITE)
-        gravity = Gravity.CENTER
-        background = GradientDrawable().apply {
-            shape = GradientDrawable.OVAL
-            setColor(color)
-        }
     }
 
     private fun openContactPage(url: String, appPackage: String?) {
@@ -212,47 +209,6 @@ class MainActivity : Activity() {
         true
     } catch (_: android.content.pm.PackageManager.NameNotFoundException) {
         false
-    }
-
-    private fun confirmHighRiskEntry() {
-        RuntimeProtection.recordEvent(this, "打开修改键位模式说明")
-        AlertDialog.Builder(this)
-            .setTitle("进入修改键位模式（中风险）")
-            .setMessage(
-                "修改键位模式需要无障碍（或 Shizuku）注入权限，会生成系统级输入事件。" +
-                    "游戏若检测注入可能有封号风险，请谨慎使用。",
-            )
-            .setNegativeButton("取消", null)
-            .setPositiveButton("继续") { _, _ ->
-                confirmHighRiskSecond()
-            }
-            .show()
-    }
-
-    /**
-     * 二次确认：红色文字强调风险，确认后才进入修改键位模式。
-     */
-    private fun confirmHighRiskSecond() {
-        RuntimeProtection.recordEvent(this, "打开修改键位模式二次确认")
-        val message = android.text.SpannableStringBuilder()
-            .append("是否确定进入该模式？")
-        message.setSpan(
-            android.text.style.ForegroundColorSpan(Color.rgb(255, 90, 90)),
-            0,
-            message.length,
-            android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
-        )
-        AlertDialog.Builder(this)
-            .setTitle("再次确认")
-            .setMessage(message)
-            .setNegativeButton("取消") { _, _ ->
-                RuntimeProtection.recordEvent(this, "修改键位模式二次确认：取消")
-            }
-            .setPositiveButton("继续") { _, _ ->
-                RuntimeProtection.recordEvent(this, "确认进入修改键位模式")
-                startActivity(Intent(this, HighRiskActivity::class.java))
-            }
-            .show()
     }
 
     private fun openRuntimeProtection() {
@@ -327,7 +283,7 @@ class MainActivity : Activity() {
         orientation = LinearLayout.HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
         setPadding(dp(14), dp(12), dp(14), dp(12))
-        background = roundedBackground(Color.rgb(22, 27, 35), Color.rgb(42, 52, 68))
+        background = roundedBackground(Color.rgb(255, 255, 255), Color.rgb(226, 230, 236))
 
         // 左侧：标题（含标签）+ 描述，占满剩余宽度。
         val textColumn = LinearLayout(this@MainActivity).apply {
@@ -337,7 +293,7 @@ class MainActivity : Activity() {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
         }
-        titleRow.addView(textView(title, 16f, Color.rgb(244, 247, 251)), LinearLayout.LayoutParams(
+        titleRow.addView(textView(title, 16f, Color.rgb(26, 31, 39)), LinearLayout.LayoutParams(
             0, -2, 1f,
         ))
         if (badge != null) {
@@ -346,7 +302,7 @@ class MainActivity : Activity() {
             })
         }
         textColumn.addView(titleRow, LinearLayout.LayoutParams(-1, -2))
-        textColumn.addView(textView(description, 12f, Color.rgb(170, 181, 196), top = 5))
+        textColumn.addView(textView(description, 12f, Color.rgb(90, 100, 114), top = 5))
         addView(textColumn, LinearLayout.LayoutParams(0, -2, 1f))
 
         // 右侧：进入按钮，垂直居中，宽度固定。
@@ -375,7 +331,7 @@ class MainActivity : Activity() {
         }
 
     private fun baseScrollView(): ScrollView = ScrollView(this).apply {
-        setBackgroundColor(Color.rgb(14, 17, 22))
+        setBackgroundColor(Color.rgb(247, 248, 250))
         isFillViewport = true
         isVerticalScrollBarEnabled = false
         isHorizontalScrollBarEnabled = false
@@ -406,10 +362,10 @@ class MainActivity : Activity() {
         this.text = text
         isAllCaps = false
         textSize = 15f
-        setTextColor(if (primary) Color.rgb(9, 17, 28) else Color.rgb(244, 247, 251))
+        setTextColor(if (primary) Color.rgb(9, 17, 28) else Color.rgb(26, 31, 39))
         background = roundedBackground(
-            if (primary) Color.rgb(116, 167, 255) else Color.rgb(32, 41, 56),
-            if (primary) Color.rgb(116, 167, 255) else Color.rgb(64, 80, 104),
+            if (primary) Color.rgb(116, 167, 255) else Color.rgb(232, 236, 242),
+            if (primary) Color.rgb(116, 167, 255) else Color.rgb(206, 212, 222),
         )
         stateListAnimator = null
         setPadding(dp(12), 0, dp(12), 0)

@@ -119,9 +119,9 @@ class ProfilePanel(
         gravity = Gravity.CENTER_VERTICAL
         setPadding(dp(8), dp(4), dp(8), dp(4))
         background = if (summary.profileId == selectedForManagement) {
-            roundedBackground(Color.rgb(32, 41, 56), Color.rgb(116, 167, 255))
+            roundedBackground(Color.rgb(232, 236, 242), Color.rgb(116, 167, 255))
         } else {
-            roundedBackground(Color.rgb(22, 27, 35), Color.rgb(42, 52, 68))
+            roundedBackground(Color.rgb(255, 255, 255), Color.rgb(226, 230, 236))
         }
         setOnClickListener {
             selectedForManagement = summary.profileId
@@ -140,14 +140,14 @@ class ProfilePanel(
             addView(TextView(context).apply {
                 text = summary.name
                 textSize = 15f
-                setTextColor(Color.rgb(244, 247, 251))
+                setTextColor(Color.rgb(26, 31, 39))
                 maxLines = 1
                 ellipsize = TextUtils.TruncateAt.END
             })
             addView(TextView(context).apply {
                 text = if (summary.isActive) "\u5F53\u524D\u4F7F\u7528" else "\u53EF\u5207\u6362"
                 textSize = 12f
-                setTextColor(if (summary.isActive) Color.rgb(102, 217, 163) else Color.rgb(170, 181, 196))
+                setTextColor(if (summary.isActive) Color.rgb(24, 130, 90) else Color.rgb(90, 100, 114))
             })
         }, LayoutParams(0, -2, 1f))
     }
@@ -268,11 +268,11 @@ class ProfilePanel(
         isAllCaps = false
         textSize = 13f
         stateListAnimator = null
-        setTextColor(if (primary) Color.rgb(9, 17, 28) else Color.rgb(244, 247, 251))
+        setTextColor(if (primary) Color.rgb(9, 17, 28) else Color.rgb(26, 31, 39))
         background = GradientDrawable().apply {
             cornerRadius = dp(9).toFloat()
-            setColor(if (primary) Color.rgb(116, 167, 255) else Color.rgb(32, 41, 56))
-            setStroke(dp(1), if (primary) Color.rgb(116, 167, 255) else Color.rgb(64, 80, 104))
+            setColor(if (primary) Color.rgb(116, 167, 255) else Color.rgb(232, 236, 242))
+            setStroke(dp(1), if (primary) Color.rgb(116, 167, 255) else Color.rgb(206, 212, 222))
         }
         setPadding(dp(4), 0, dp(4), 0)
     }
