@@ -19,7 +19,6 @@ import android.view.Gravity
 import android.view.WindowManager
 import com.example.buttonremapping.profile.ProfileManager
 import kotlin.math.abs
-import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
@@ -115,7 +114,7 @@ class OverlayService : Service() {
             val geometry = OverlayGeometry.fromWindowManager(this)
             var config = LayoutPrefs.load(this)
             blockedCornerRadius = config.blockedCornerRadius
-            blockedAreaAlpha = config.blockedAreaAlpha.coerceIn(0.05f, 1f)
+            blockedAreaAlpha = config.blockedAreaAlpha.coerceIn(0f, 1f)
             blockedRect = OverlayGeometry.toPixelRect(
                 config.blockedArea,
                 geometry,
@@ -452,9 +451,11 @@ class OverlayService : Service() {
             val bottom = rect.top + rect.height() * (index + 1) / stripeCount
             if (bottom <= top) continue
             val localTop = (top - rect.top).toFloat()
-            val localBottom = (bottom - rect.top - 1).coerceAtLeast(top - rect.top).toFloat()
-            val inset = max(horizontalInset(localTop), horizontalInset(localBottom))
-            val left = rect.left + ceil(inset).toInt()
+            val localBottom = (bottom - rect.top).toFloat()
+            // 用 min 取该条纹内圆的最宽处，并向两侧 floor 外扩，保证相邻条纹无缝隙、
+            // 整圆被完全覆盖，不会出现“圆内漏点”触发下层按钮。
+            val inset = min(horizontalInset(localTop), horizontalInset(localBottom))
+            val left = rect.left + floor(inset).toInt()
             val right = rect.right - floor(inset).toInt()
             if (right > left) result += Rect(left, top, right, bottom)
         }

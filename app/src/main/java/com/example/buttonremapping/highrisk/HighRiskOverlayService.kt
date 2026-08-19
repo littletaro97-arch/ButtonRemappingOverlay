@@ -281,10 +281,8 @@ class HighRiskOverlayService : Service() {
         val top = rect.top.coerceIn(0, (geometry.height - height).coerceAtLeast(0))
         val clamped = android.graphics.Rect(left, top, left + width, top + height)
         val view = BlockOverlayView(this).apply {
-            // 目标区域透明度由配置 targetBlockAlpha 控制（下限 0.05，不为 0）：
-            // 既保持肉眼可见/可调的半透明标识，又规避部分 OEM 对完全透明 Overlay
-            // 的合成/输入优化不确定性。
-            this.alpha = alpha.coerceIn(0.05f, 1f)
+            // 目标区域透明度由配置 targetBlockAlpha 控制（下限 0，可全透明；0% 档位由编辑器隔断提供）。
+            this.alpha = alpha.coerceIn(0f, 1f)
             setBackgroundColor(TARGET_BLOCK_COLOR)
         }
         try {

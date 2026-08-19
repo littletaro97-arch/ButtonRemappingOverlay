@@ -121,7 +121,7 @@ object LayoutPrefs {
                 .coerceIn(0.25f, 1f),
             blockedAreaAlpha = preferences
                 .getFloat(BLOCKED_ALPHA, defaults.blockedAreaAlpha)
-                .coerceIn(0.05f, 1f),
+                .coerceIn(0f, 1f),
             blockedCornerRadius = preferences
                 .getFloat(BLOCKED_CORNER_RADIUS, defaults.blockedCornerRadius)
                 .coerceIn(0f, 0.5f),
@@ -184,7 +184,7 @@ object LayoutPrefs {
             .putFloat(BUTTON_WIDTH, config.virtualButton.widthRatio.coerceIn(OverlayGeometry.MIN_COMPONENT_RATIO, 1f))
             .putFloat(BUTTON_HEIGHT, config.virtualButton.heightRatio.coerceIn(OverlayGeometry.MIN_COMPONENT_RATIO, 1f))
             .putFloat(BUTTON_ALPHA, config.virtualButtonAlpha.coerceIn(0.25f, 1f))
-            .putFloat(BLOCKED_ALPHA, config.blockedAreaAlpha.coerceIn(0.05f, 1f))
+            .putFloat(BLOCKED_ALPHA, config.blockedAreaAlpha.coerceIn(0f, 1f))
             .putFloat(BLOCKED_CORNER_RADIUS, config.blockedCornerRadius.coerceIn(0f, 0.5f))
             .putFloat(TOGGLE_X, config.toggleButton.xRatio.coerceIn(0f, 1f))
             .putFloat(TOGGLE_Y, config.toggleButton.yRatio.coerceIn(0f, 1f))

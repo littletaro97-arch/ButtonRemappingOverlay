@@ -67,6 +67,26 @@
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
             android:exported="false" />
 
+        <activity
+            android:name=".DoubleTapActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
+            android:exported="false" />
+
+        <activity
+            android:name=".DoubleTapEditorActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
+            android:exported="false" />
+
+        <service
+            android:name=".DoubleTapOverlayService"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="double_tap_trigger" />
+        </service>
+
         <service
             android:name=".LongPressOverlayService"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"

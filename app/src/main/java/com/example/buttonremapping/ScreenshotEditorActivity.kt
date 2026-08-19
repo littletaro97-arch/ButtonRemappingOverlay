@@ -180,19 +180,13 @@ class ScreenshotEditorActivity : Activity() {
             setTextColor(Color.rgb(90, 100, 114))
         }
         addView(opacityLabel, LinearLayout.LayoutParams(dp(76), -2))
-        addView(SeekBar(this@ScreenshotEditorActivity).apply {
-            max = 100
-            progress = (config.blockedAreaAlpha * 100f).roundToInt()
-            setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                    config = config.copy(blockedAreaAlpha = (progress / 100f).coerceIn(0.05f, 1f))
-                    blockedView.alpha = config.blockedAreaAlpha
-                    updateOpacityLabel()
-                }
-
-                override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
-                override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
-            })
+        addView(createTransparencySeekBar(
+            context = this@ScreenshotEditorActivity,
+            initialAlpha = config.blockedAreaAlpha,
+        ) { alpha ->
+            config = config.copy(blockedAreaAlpha = alpha)
+            blockedView.alpha = alpha
+            updateOpacityLabel()
         }, LinearLayout.LayoutParams(0, dp(28), 1f))
 
         cornerLabel = TextView(this@ScreenshotEditorActivity).apply {

@@ -25,6 +25,7 @@ import android.widget.Toast
 import com.example.buttonremapping.ComponentEditorView
 import com.example.buttonremapping.OverlayGeometry
 import com.example.buttonremapping.RuntimeProtection
+import com.example.buttonremapping.createTransparencySeekBar
 import kotlin.math.roundToInt
 
 class HighRiskEditorActivity : Activity() {
@@ -195,19 +196,13 @@ class HighRiskEditorActivity : Activity() {
             setTextColor(Color.rgb(90, 100, 114))
         }
         opacityRow.addView(targetOpacityLabel, LinearLayout.LayoutParams(dp(88), -2))
-        opacityRow.addView(SeekBar(this@HighRiskEditorActivity).apply {
-            max = 100
-            progress = (config.targetBlockAlpha * 100f).roundToInt()
-            setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                    config = config.copy(targetBlockAlpha = (progress / 100f).coerceIn(0.05f, 1f))
-                    targetView.alpha = config.targetBlockAlpha
-                    updateTargetOpacityLabel()
-                }
-
-                override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
-                override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
-            })
+        opacityRow.addView(createTransparencySeekBar(
+            context = this@HighRiskEditorActivity,
+            initialAlpha = config.targetBlockAlpha,
+        ) { alpha ->
+            config = config.copy(targetBlockAlpha = alpha)
+            targetView.alpha = alpha
+            updateTargetOpacityLabel()
         }, LinearLayout.LayoutParams(0, dp(28), 1f))
 
         opacityLabel = TextView(this@HighRiskEditorActivity).apply {

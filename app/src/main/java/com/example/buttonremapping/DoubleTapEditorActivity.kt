@@ -24,10 +24,10 @@ import android.widget.Toast
 import kotlin.math.roundToInt
 
 /**
- * 长按触发模式编辑器：上传截图后编辑一个"长按触发区域"。
+ * 双击触发模式编辑器：上传截图后编辑一个"双击触发区域"。
  * 支持拖动、右下角缩放、透明度、圆角，最小尺寸与其他模式一致。
  */
-class LongPressEditorActivity : Activity() {
+class DoubleTapEditorActivity : Activity() {
     private lateinit var editorRoot: FrameLayout
     private lateinit var canvasView: ScreenshotCanvasView
     private lateinit var areaView: ComponentEditorView
@@ -39,7 +39,7 @@ class LongPressEditorActivity : Activity() {
     private var sourceWidth = 0
     private var sourceHeight = 0
     private lateinit var bitmap: Bitmap
-    private lateinit var config: LongPressConfig
+    private lateinit var config: DoubleTapConfig
     private val lastCanvasBounds = Rect()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,32 +48,32 @@ class LongPressEditorActivity : Activity() {
         sourceWidth = intent.getIntExtra(EXTRA_WIDTH, 0)
         sourceHeight = intent.getIntExtra(EXTRA_HEIGHT, 0)
         if (sourceWidth <= 0 || sourceHeight <= 0 || sourceUri.toString().isBlank()) {
-            RuntimeProtection.recordEvent(this, "长按触发编辑器打开失败：截图参数无效")
+            RuntimeProtection.recordEvent(this, "双击触发编辑器打开失败：截图参数无效")
             finishWithMessage("截图尺寸无效，无法编辑")
             return
         }
-        RuntimeProtection.recordEvent(this, "打开长按触发编辑器", "${sourceWidth}x${sourceHeight}")
+        RuntimeProtection.recordEvent(this, "打开双击触发编辑器", "${sourceWidth}x${sourceHeight}")
         requestedOrientation = if (sourceWidth >= sourceHeight) {
             ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         } else {
             ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
-        stopService(Intent(this, LongPressOverlayService::class.java))
+        stopService(Intent(this, DoubleTapOverlayService::class.java))
         bitmap = decodeBitmap(sourceUri, sourceWidth, sourceHeight)
             ?: run {
-                RuntimeProtection.recordEvent(this, "长按触发编辑器打开失败：图片读取失败")
+                RuntimeProtection.recordEvent(this, "双击触发编辑器打开失败：图片读取失败")
                 finishWithMessage("无法读取截图，请重新选择")
                 return
             }
 
-        val savedConfig = LongPressPrefs.load(this)
+        val savedConfig = DoubleTapPrefs.load(this)
         val sameScreenshot = savedConfig.hasScreenshot &&
             savedConfig.screenshotUri == sourceUri.toString()
         config = if (sameScreenshot) {
             savedConfig
         } else {
             savedConfig.copy(
-                area = LongPressConfig().area,
+                area = DoubleTapConfig().area,
                 screenshotUri = sourceUri.toString(),
                 screenshotWidth = sourceWidth,
                 screenshotHeight = sourceHeight,
@@ -121,7 +121,7 @@ class LongPressEditorActivity : Activity() {
 
         areaView = ComponentEditorView(
             context = this,
-            label = "长按区域",
+            label = "双击区域",
             fillColor = Color.rgb(255, 170, 72),
             strokeColor = Color.rgb(255, 214, 132),
             movementBoundsProvider = { canvasView.contentRect() },
@@ -136,7 +136,6 @@ class LongPressEditorActivity : Activity() {
         editorRoot.addView(bottomBar, FrameLayout.LayoutParams(-1, dp(56)).apply {
             gravity = Gravity.BOTTOM
         })
-        // 点击编辑区空白处（非组件、非遮挡栏）：隐藏/重现上下遮挡栏。
         editorRoot.isClickable = true
         editorRoot.setOnClickListener { toggleEditorBars(topBar, bottomBar) }
         return editorRoot
@@ -153,18 +152,18 @@ class LongPressEditorActivity : Activity() {
         gravity = Gravity.CENTER_VERTICAL
         setPadding(dp(14), dp(4), dp(14), dp(4))
         background = GradientDrawable().apply { setColor(Color.argb(238, 255, 255, 255)) }
-        addView(TextView(this@LongPressEditorActivity).apply {
-            text = "长按触发区域编辑"
+        addView(TextView(this@DoubleTapEditorActivity).apply {
+            text = "双击触发区域编辑"
             textSize = 17f
             setTextColor(Color.rgb(26, 31, 39))
         }, LinearLayout.LayoutParams(0, -2, 0.7f))
-        sizeHint = TextView(this@LongPressEditorActivity).apply {
+        sizeHint = TextView(this@DoubleTapEditorActivity).apply {
             textSize = 10f
             maxLines = 1
             ellipsize = android.text.TextUtils.TruncateAt.END
         }
         addView(sizeHint, LinearLayout.LayoutParams(0, -2, 1.3f))
-        addView(TextView(this@LongPressEditorActivity).apply {
+        addView(TextView(this@DoubleTapEditorActivity).apply {
             text = getString(R.string.screenshot_dimensions, sourceWidth, sourceHeight)
             textSize = 12f
             setTextColor(Color.rgb(90, 100, 114))
@@ -179,13 +178,13 @@ class LongPressEditorActivity : Activity() {
         setPadding(dp(12), dp(2), dp(12), dp(2))
         background = GradientDrawable().apply { setColor(Color.argb(238, 255, 255, 255)) }
 
-        opacityLabel = TextView(this@LongPressEditorActivity).apply {
+        opacityLabel = TextView(this@DoubleTapEditorActivity).apply {
             textSize = 12f
             setTextColor(Color.rgb(90, 100, 114))
         }
         addView(opacityLabel, LinearLayout.LayoutParams(dp(76), -2))
         addView(createTransparencySeekBar(
-            context = this@LongPressEditorActivity,
+            context = this@DoubleTapEditorActivity,
             initialAlpha = config.areaAlpha,
         ) { alpha ->
             config = config.copy(areaAlpha = alpha)
@@ -193,14 +192,14 @@ class LongPressEditorActivity : Activity() {
             updateOpacityLabel()
         }, LinearLayout.LayoutParams(0, dp(28), 1f))
 
-        cornerLabel = TextView(this@LongPressEditorActivity).apply {
+        cornerLabel = TextView(this@DoubleTapEditorActivity).apply {
             textSize = 12f
             setTextColor(Color.rgb(90, 100, 114))
         }
         addView(cornerLabel, LinearLayout.LayoutParams(dp(76), -2).apply {
             leftMargin = dp(10)
         })
-        addView(SeekBar(this@LongPressEditorActivity).apply {
+        addView(SeekBar(this@DoubleTapEditorActivity).apply {
             max = 100
             progress = (config.cornerRadius * 200f).roundToInt()
             setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -214,7 +213,7 @@ class LongPressEditorActivity : Activity() {
                 override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
             })
         }, LinearLayout.LayoutParams(0, dp(28), 1f))
-        addView(Button(this@LongPressEditorActivity).apply {
+        addView(Button(this@DoubleTapEditorActivity).apply {
             text = "保存区域"
             isAllCaps = false
             textSize = 12f
@@ -236,7 +235,6 @@ class LongPressEditorActivity : Activity() {
         val content = canvasView.contentRect()
         if (content.width() <= 0 || content.height() <= 0) return
         if (lastCanvasBounds != content) {
-            // 与保存/运行时使用同一旋转换算，保证竖屏画布下预览一致。
             val geometry = OverlayGeometry.fromWindowManager(this)
             areaView.setPixelRect(
                 OverlayGeometry.toPixelRect(
@@ -289,7 +287,7 @@ class LongPressEditorActivity : Activity() {
         val sameSize = (geometry.width == sourceWidth && geometry.height == sourceHeight) ||
             (geometry.width == sourceHeight && geometry.height == sourceWidth)
         sizeHint.text = if (sameSize) {
-            "长按区域可完全透明或半透明显示"
+            "双击区域可完全透明或半透明显示"
         } else {
             "截图尺寸与当前设备不同，请重新使用本机截图"
         }
@@ -300,7 +298,7 @@ class LongPressEditorActivity : Activity() {
 
     private fun saveAndExit() {
         syncConfigFromView()
-        LongPressPrefs.save(
+        DoubleTapPrefs.save(
             this,
             config.copy(
                 screenshotUri = sourceUri.toString(),
@@ -311,8 +309,8 @@ class LongPressEditorActivity : Activity() {
         )
         RuntimeProtection.recordEvent(
             this,
-            "保存长按触发布局并退出编辑器",
-            "screen=${sourceWidth}x${sourceHeight}; area=${config.area}; alpha=${config.areaAlpha}; corner=${config.cornerRadius}; longPressMs=${config.longPressMs}",
+            "保存双击触发布局并退出编辑器",
+            "screen=${sourceWidth}x${sourceHeight}; area=${config.area}; alpha=${config.areaAlpha}; corner=${config.cornerRadius}",
         )
         restoreStatusBar()
         setResult(RESULT_OK)
@@ -374,9 +372,9 @@ class LongPressEditorActivity : Activity() {
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).roundToInt()
 
     companion object {
-        const val EXTRA_URI = "longpress_screenshot_uri"
-        const val EXTRA_WIDTH = "longpress_screenshot_width"
-        const val EXTRA_HEIGHT = "longpress_screenshot_height"
+        const val EXTRA_URI = "doubletap_screenshot_uri"
+        const val EXTRA_WIDTH = "doubletap_screenshot_width"
+        const val EXTRA_HEIGHT = "doubletap_screenshot_height"
         private const val MAX_BITMAP_SIDE = 2400
     }
 }

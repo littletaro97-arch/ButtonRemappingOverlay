@@ -154,11 +154,10 @@ class EditorActivity : Activity() {
             setTextColor(Color.rgb(90, 100, 114))
         }
         bar.addView(blockedOpacityLabel, LinearLayout.LayoutParams(dp(76), -2))
-        blockedOpacitySeekBar = createSeekBar(
-            max = 100,
-            progress = (config.blockedAreaAlpha * 100f).roundToInt(),
-        ) { progress ->
-            val alpha = (progress / 100f).coerceIn(0.05f, 1f)
+        blockedOpacitySeekBar = createTransparencySeekBar(
+            context = this,
+            initialAlpha = config.blockedAreaAlpha,
+        ) { alpha ->
             config = config.copy(blockedAreaAlpha = alpha)
             blockedView.alpha = alpha
             updateBlockedOpacityLabel()

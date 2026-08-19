@@ -3,6 +3,7 @@ package com.example.buttonremapping.profile
 import android.content.Context
 import android.view.Surface
 import com.example.buttonremapping.ComponentRatio
+import com.example.buttonremapping.DoubleTapConfig
 import com.example.buttonremapping.LayoutConfig
 import com.example.buttonremapping.LayoutPrefs
 import com.example.buttonremapping.LongPressConfig
@@ -17,6 +18,7 @@ import java.util.UUID
 enum class ProfileMode(val wireName: String) {
     LOW("low"),
     LONG("long"),
+    DOUBLE("double"),
     HIGH("high"),
 }
 
@@ -34,6 +36,7 @@ object ProfileManager {
     private const val STORE_JSON = "profiles_json"
     private const val ACTIVE_LOW_ID = "active_low_id"
     private const val ACTIVE_LONG_ID = "active_long_id"
+    private const val ACTIVE_DOUBLE_ID = "active_double_id"
     private const val ACTIVE_HIGH_ID = "active_high_id"
     private const val DEFAULT_NAME = "默认方案"
     private const val LONG_PRESS_MIN_MS = 300
@@ -98,6 +101,11 @@ object ProfileManager {
             },
             longConfig = if (mode == ProfileMode.LONG) {
                 if (copyCurrent) source.longConfig ?: LongPressConfig() else LongPressConfig()
+            } else {
+                null
+            },
+            doubleConfig = if (mode == ProfileMode.DOUBLE) {
+                if (copyCurrent) source.doubleConfig ?: DoubleTapConfig() else DoubleTapConfig()
             } else {
                 null
             },
@@ -225,6 +233,30 @@ object ProfileManager {
         }
     }
 
+    fun loadDouble(context: Context): DoubleTapConfig = synchronized(lock) {
+        val store = ensureMode(context, loadStore(context), ProfileMode.DOUBLE)
+        currentRecord(store, ProfileMode.DOUBLE).doubleConfig ?: DoubleTapConfig()
+    }
+
+    fun saveDouble(context: Context, config: DoubleTapConfig) = synchronized(lock) {
+        val store = ensureMode(context, loadStore(context), ProfileMode.DOUBLE)
+        val id = activeId(store, ProfileMode.DOUBLE)
+        val index = store.profiles.indexOfFirst { it.profileId == id }
+        if (index >= 0) {
+            val record = store.profiles[index]
+            store.profiles[index] = record.copy(
+                doubleConfig = config,
+                updatedTime = System.currentTimeMillis(),
+            )
+            persist(context, store)
+            OperationLog.append(
+                context,
+                "保存双击触发布局",
+                "profile=${record.name}; area=${config.area}; alpha=${config.areaAlpha}; corner=${config.cornerRadius}",
+            )
+        }
+    }
+
     private fun loadStore(context: Context): ProfileStore {
         val preferences = context.applicationContext
             .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -240,6 +272,7 @@ object ProfileManager {
                 profiles = profiles,
                 activeLowId = root.optString("activeLowId").takeIf { it.isNotBlank() },
                 activeLongId = root.optString("activeLongId").takeIf { it.isNotBlank() },
+                activeDoubleId = root.optString("activeDoubleId").takeIf { it.isNotBlank() },
                 activeHighId = root.optString("activeHighId").takeIf { it.isNotBlank() },
             )
         } catch (_: Exception) {
@@ -263,6 +296,7 @@ object ProfileManager {
                 updatedTime = now,
                 lowConfig = if (mode == ProfileMode.LOW) LayoutPrefs.loadLegacy(context) else null,
                 longConfig = if (mode == ProfileMode.LONG) LongPressConfig() else null,
+                doubleConfig = if (mode == ProfileMode.DOUBLE) DoubleTapConfig() else null,
                 highConfig = if (mode == ProfileMode.HIGH) MappingPrefs.loadLegacy(context) else null,
             )
             store.profiles += record
@@ -290,6 +324,7 @@ object ProfileManager {
     private fun activeId(store: ProfileStore, mode: ProfileMode): String? = when (mode) {
         ProfileMode.LOW -> store.activeLowId
         ProfileMode.LONG -> store.activeLongId
+        ProfileMode.DOUBLE -> store.activeDoubleId
         ProfileMode.HIGH -> store.activeHighId
     }
 
@@ -297,6 +332,7 @@ object ProfileManager {
         when (mode) {
             ProfileMode.LOW -> store.activeLowId = id
             ProfileMode.LONG -> store.activeLongId = id
+            ProfileMode.DOUBLE -> store.activeDoubleId = id
             ProfileMode.HIGH -> store.activeHighId = id
         }
     }
@@ -305,6 +341,7 @@ object ProfileManager {
         val root = JSONObject().apply {
             put("activeLowId", store.activeLowId ?: JSONObject.NULL)
             put("activeLongId", store.activeLongId ?: JSONObject.NULL)
+            put("activeDoubleId", store.activeDoubleId ?: JSONObject.NULL)
             put("activeHighId", store.activeHighId ?: JSONObject.NULL)
             put("profiles", JSONArray().apply {
                 store.profiles.forEach { put(profileJson(it)) }
@@ -325,6 +362,7 @@ object ProfileManager {
         put("updatedTime", profile.updatedTime)
         put("low", profile.lowConfig?.let(::lowJson) ?: JSONObject.NULL)
         put("long", profile.longConfig?.let(::longJson) ?: JSONObject.NULL)
+        put("double", profile.doubleConfig?.let(::doubleJson) ?: JSONObject.NULL)
         put("high", profile.highConfig?.let(::highJson) ?: JSONObject.NULL)
     }
 
@@ -333,6 +371,7 @@ object ProfileManager {
         val mode = when (json.optString("mode")) {
             ProfileMode.LOW.wireName -> ProfileMode.LOW
             ProfileMode.LONG.wireName -> ProfileMode.LONG
+            ProfileMode.DOUBLE.wireName -> ProfileMode.DOUBLE
             ProfileMode.HIGH.wireName -> ProfileMode.HIGH
             else -> return null
         }
@@ -340,6 +379,7 @@ object ProfileManager {
         val name = json.optString("name", DEFAULT_NAME).ifBlank { DEFAULT_NAME }
         val low = json.optJSONObject("low")?.let(::parseLow)
         val long = json.optJSONObject("long")?.let(::parseLong)
+        val double = json.optJSONObject("double")?.let(::parseDouble)
         val high = json.optJSONObject("high")?.let(::parseHigh)
         return ProfileRecord(
             profileId = id,
@@ -349,6 +389,7 @@ object ProfileManager {
             updatedTime = json.optLong("updatedTime", 0L),
             lowConfig = if (mode == ProfileMode.LOW) low ?: LayoutPrefs.defaults else null,
             longConfig = if (mode == ProfileMode.LONG) long ?: LongPressConfig() else null,
+            doubleConfig = if (mode == ProfileMode.DOUBLE) double ?: DoubleTapConfig() else null,
             highConfig = if (mode == ProfileMode.HIGH) high ?: MappingConfig() else null,
         )
     }
@@ -376,7 +417,7 @@ object ProfileManager {
             blockedArea = parseComponent(json.optJSONObject("blockedArea"), defaults.blockedArea),
             virtualButton = parseComponent(json.optJSONObject("virtualButton"), defaults.virtualButton),
             virtualButtonAlpha = json.float("virtualButtonAlpha", defaults.virtualButtonAlpha).coerceIn(0.25f, 1f),
-            blockedAreaAlpha = json.float("blockedAreaAlpha", defaults.blockedAreaAlpha).coerceIn(0.05f, 1f),
+            blockedAreaAlpha = json.float("blockedAreaAlpha", defaults.blockedAreaAlpha).coerceIn(0f, 1f),
             blockedCornerRadius = json.float("blockedCornerRadius", defaults.blockedCornerRadius).coerceIn(0f, 0.5f),
             toggleButton = parseComponent(json.optJSONObject("toggleButton"), defaults.toggleButton),
             toggleAlpha = json.float("toggleAlpha", defaults.toggleAlpha).coerceIn(0.2f, 1f),
@@ -411,10 +452,42 @@ object ProfileManager {
         val defaults = LongPressConfig()
         return LongPressConfig(
             area = parseComponent(json.optJSONObject("area"), defaults.area),
-            areaAlpha = json.float("areaAlpha", defaults.areaAlpha).coerceIn(0.05f, 1f),
+            areaAlpha = json.float("areaAlpha", defaults.areaAlpha).coerceIn(0f, 1f),
             cornerRadius = json.float("cornerRadius", defaults.cornerRadius).coerceIn(0f, 0.5f),
             longPressMs = json.optInt("longPressMs", defaults.longPressMs)
                 .coerceIn(LONG_PRESS_MIN_MS, LONG_PRESS_MAX_MS),
+            screenshotUri = json.optionalString("screenshotUri"),
+            screenshotWidth = json.optInt("screenshotWidth", 0),
+            screenshotHeight = json.optInt("screenshotHeight", 0),
+            coordinateSpaceVersion = json.optInt(
+                "coordinateSpaceVersion",
+                OverlayGeometry.CURRENT_COORDINATE_SPACE_VERSION,
+            ),
+            coordinateRotation = json.optInt("coordinateRotation", Surface.ROTATION_90).coerceIn(0, 3),
+            triggerEnabled = json.optBoolean("triggerEnabled", false),
+            triggerPackages = parsePackages(json.optJSONArray("triggerPackages")),
+        )
+    }
+
+    private fun doubleJson(config: DoubleTapConfig): JSONObject = JSONObject().apply {
+        put("area", componentJson(config.area))
+        put("areaAlpha", config.areaAlpha)
+        put("cornerRadius", config.cornerRadius)
+        putOptionalString("screenshotUri", config.screenshotUri)
+        put("screenshotWidth", config.screenshotWidth)
+        put("screenshotHeight", config.screenshotHeight)
+        put("coordinateSpaceVersion", config.coordinateSpaceVersion)
+        put("coordinateRotation", config.coordinateRotation)
+        put("triggerEnabled", config.triggerEnabled)
+        put("triggerPackages", JSONArray(config.triggerPackages))
+    }
+
+    private fun parseDouble(json: JSONObject): DoubleTapConfig {
+        val defaults = DoubleTapConfig()
+        return DoubleTapConfig(
+            area = parseComponent(json.optJSONObject("area"), defaults.area),
+            areaAlpha = json.float("areaAlpha", defaults.areaAlpha).coerceIn(0f, 1f),
+            cornerRadius = json.float("cornerRadius", defaults.cornerRadius).coerceIn(0f, 0.5f),
             screenshotUri = json.optionalString("screenshotUri"),
             screenshotWidth = json.optInt("screenshotWidth", 0),
             screenshotHeight = json.optInt("screenshotHeight", 0),
@@ -482,7 +555,7 @@ object ProfileManager {
                 defaults.targetCornerRadius,
             ).coerceIn(0f, 0.5f),
             targetBlockAlpha = json.float("targetBlockAlpha", defaults.targetBlockAlpha)
-                .coerceIn(0.05f, 1f),
+                .coerceIn(0f, 1f),
             screenshotUri = json.optionalString("screenshotUri"),
             screenshotWidth = json.optInt("screenshotWidth", 0),
             screenshotHeight = json.optInt("screenshotHeight", 0),
@@ -550,6 +623,7 @@ object ProfileManager {
         val updatedTime: Long,
         val lowConfig: LayoutConfig?,
         val longConfig: LongPressConfig?,
+        val doubleConfig: DoubleTapConfig?,
         val highConfig: MappingConfig?,
     ) {
         fun toSummary(active: Boolean) = ProfileSummary(
@@ -566,6 +640,7 @@ object ProfileManager {
         val profiles: MutableList<ProfileRecord> = mutableListOf(),
         var activeLowId: String? = null,
         var activeLongId: String? = null,
+        var activeDoubleId: String? = null,
         var activeHighId: String? = null,
     )
 }

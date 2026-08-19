@@ -79,6 +79,11 @@ class MainActivity : Activity() {
         startActivity(Intent(this, LongPressActivity::class.java))
     }
 
+    private fun showDoubleTapMode() {
+        RuntimeProtection.recordEvent(this, "进入双击触发模式")
+        startActivity(Intent(this, DoubleTapActivity::class.java))
+    }
+
     private fun showHighRiskMode() {
         RuntimeProtection.recordEvent(this, "进入修改键位模式")
         startActivity(Intent(this, HighRiskActivity::class.java))
@@ -98,6 +103,14 @@ class MainActivity : Activity() {
             badge = badgeChip("低风险", Color.rgb(102, 217, 163), Color.rgb(24, 58, 44)),
             onClick = { showLowRiskMode() },
         ), LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(24) })
+        root.addView(modePanel(
+            title = "双击触发模式",
+            description = "将单击触发的按钮改为双击触发",
+            buttonText = "进入",
+            enabled = true,
+            badge = badgeChip("低风险", Color.rgb(102, 217, 163), Color.rgb(24, 58, 44)),
+            onClick = { showDoubleTapMode() },
+        ), LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
         root.addView(modePanel(
             title = "长按触发模式",
             description = "短按操作变更为长按",

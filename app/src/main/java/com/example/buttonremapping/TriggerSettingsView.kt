@@ -169,12 +169,14 @@ class TriggerSettingsView(
     private fun currentTriggerEnabled(): Boolean = when (mode) {
         ProfileMode.LOW -> LayoutPrefs.load(context).triggerEnabled
         ProfileMode.LONG -> LongPressPrefs.load(context).triggerEnabled
+        ProfileMode.DOUBLE -> DoubleTapPrefs.load(context).triggerEnabled
         ProfileMode.HIGH -> MappingPrefs.load(context).triggerEnabled
     }
 
     private fun currentTriggerPackages(): List<String> = when (mode) {
         ProfileMode.LOW -> LayoutPrefs.load(context).triggerPackages
         ProfileMode.LONG -> LongPressPrefs.load(context).triggerPackages
+        ProfileMode.DOUBLE -> DoubleTapPrefs.load(context).triggerPackages
         ProfileMode.HIGH -> MappingPrefs.load(context).triggerPackages
     }
 
@@ -187,6 +189,10 @@ class TriggerSettingsView(
             ProfileMode.LONG -> {
                 val config = LongPressPrefs.load(context)
                 LongPressPrefs.save(context, config.copy(triggerEnabled = enabled))
+            }
+            ProfileMode.DOUBLE -> {
+                val config = DoubleTapPrefs.load(context)
+                DoubleTapPrefs.save(context, config.copy(triggerEnabled = enabled))
             }
             ProfileMode.HIGH -> {
                 val config = MappingPrefs.load(context)
@@ -204,6 +210,10 @@ class TriggerSettingsView(
             ProfileMode.LONG -> {
                 val config = LongPressPrefs.load(context)
                 LongPressPrefs.save(context, config.copy(triggerPackages = packages))
+            }
+            ProfileMode.DOUBLE -> {
+                val config = DoubleTapPrefs.load(context)
+                DoubleTapPrefs.save(context, config.copy(triggerPackages = packages))
             }
             ProfileMode.HIGH -> {
                 val config = MappingPrefs.load(context)

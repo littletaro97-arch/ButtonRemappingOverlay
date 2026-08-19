@@ -9,6 +9,7 @@ import android.text.InputType
 import android.text.TextUtils
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
@@ -29,7 +30,15 @@ class ProfilePanel(
     private val onProfileChanged: () -> Unit,
     private val onEditNewProfile: () -> Unit,
 ) : LinearLayout(context) {
-    private val spinner = Spinner(context)
+    private val spinner = Spinner(context).apply {
+        // 蓝色文本框 + 黑字，解决浅色背景下白字看不清的问题。
+        background = GradientDrawable().apply {
+            cornerRadius = dp(9).toFloat()
+            setColor(Color.rgb(79, 195, 247))
+            setStroke(dp(1), Color.rgb(79, 195, 247))
+        }
+        setPadding(dp(10), 0, dp(10), 0)
+    }
     private val listContainer = LinearLayout(context)
     private var summaries: List<ProfileSummary> = emptyList()
     private var selectedForManagement: String? = null
@@ -98,11 +107,21 @@ class ProfilePanel(
             selectedForManagement = active.profileId
         }
 
-        val adapter = ArrayAdapter(
+        val adapter = object : ArrayAdapter<String>(
             context,
             android.R.layout.simple_spinner_item,
             summaries.map { it.name },
-        ).also { it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
+        ) {
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View =
+                (super.getView(position, convertView, parent) as TextView).apply {
+                    setTextColor(Color.rgb(9, 17, 28))
+                }
+
+            override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View =
+                (super.getDropDownView(position, convertView, parent) as TextView).apply {
+                    setTextColor(Color.rgb(9, 17, 28))
+                }
+        }
         suppressSpinnerCallback = true
         spinner.adapter = adapter
         spinner.setSelection(summaries.indexOfFirst { it.isActive }.coerceAtLeast(0), false)
