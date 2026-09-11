@@ -241,7 +241,7 @@ object OverlayGeometry {
     }
 
     private fun quarterTurns(fromRotation: Int, toRotation: Int): Int =
-        (toRotation - fromRotation + 4).mod(4)
+        CoordinateRotationPolicy.quarterTurns(fromRotation, toRotation)
 
     private fun geometryDensity(geometry: DisplayGeometry): Float = geometry.density
 

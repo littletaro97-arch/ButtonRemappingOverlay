@@ -306,7 +306,7 @@ class LongPressEditorActivity : Activity() {
                 screenshotUri = sourceUri.toString(),
                 screenshotWidth = sourceWidth,
                 screenshotHeight = sourceHeight,
-                coordinateRotation = OverlayGeometry.fromWindowManager(this).rotation,
+                // coordinateRotation 已由 syncConfigFromView 按截图方向维护。
             ),
         )
         RuntimeProtection.recordEvent(
@@ -350,21 +350,23 @@ class LongPressEditorActivity : Activity() {
             window.insetsController?.let { controller ->
                 controller.systemBarsBehavior =
                     WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-                controller.hide(WindowInsets.Type.statusBars())
+                controller.hide(WindowInsets.Type.systemBars())
             }
         } else {
             @Suppress("DEPRECATION")
             window.decorView.systemUiVisibility =
                 View.SYSTEM_UI_FLAG_FULLSCREEN or
+                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
                     View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
                     View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
                     View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         }
     }
 
     private fun restoreStatusBar() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.insetsController?.show(WindowInsets.Type.statusBars())
+            window.insetsController?.show(WindowInsets.Type.systemBars())
         } else {
             @Suppress("DEPRECATION")
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE

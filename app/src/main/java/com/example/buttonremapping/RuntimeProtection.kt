@@ -46,6 +46,11 @@ object RuntimeProtection {
     private const val PREFS_NAME = "runtime_diagnostics"
     private const val LAST_EVENT = "last_event"
 
+    fun isHuaweiDevice(): Boolean = VendorGuidancePolicy.shouldShowHuaweiGuide(
+        Build.MANUFACTURER,
+        Build.BRAND,
+    )
+
     fun inspect(context: Context): RuntimeProtectionStatus {
         val appContext = context.applicationContext
         val overlayGranted = runCatching { Settings.canDrawOverlays(appContext) }
@@ -94,9 +99,9 @@ object RuntimeProtection {
 
     fun homeSummary(status: RuntimeProtectionStatus): String {
         return when {
-            !status.overlayGranted -> "4 项需要检查 · 悬浮窗权限未开启"
-            status.hasOptionalWarnings -> "4 项需要检查 · 还有建议设置未完成"
-            else -> "4 项已检查 · 当前运行设置正常"
+            !status.overlayGranted -> "5 项需要检查 · 悬浮窗权限未开启"
+            status.hasOptionalWarnings -> "5 项需要检查 · 还有建议设置未完成"
+            else -> "5 项已检查 · 当前运行设置正常"
         }
     }
 

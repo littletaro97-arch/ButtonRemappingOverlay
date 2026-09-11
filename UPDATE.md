@@ -9,6 +9,47 @@
 
 ## 当前版本
 
+### v6.7（2026-09-11，versionCode 40）— GitHub Release 自动更新验证
+
+**处理**：
+
+1. **自动检查更新**：应用正常启动后最多每 6 小时检查一次 GitHub Latest Release；首次权限引导期间不弹出更新提示。
+2. **手动检查入口**：设置页新增“应用更新 > GitHub Release 更新”，可立即检查且不受自动检查限频影响。
+3. **安全下载与安装交接**：发现更高版本后由用户确认下载；下载完成必须通过 GitHub SHA-256、包名、versionCode 和当前应用签名校验，随后才调起 Android 系统安装器。
+4. **发布契约**：固定读取 `littletaro97-arch/ButtonRemappingOverlay` 的 Latest Release；tag、APK 文件名、下载域名和资产唯一性必须符合 v6.7 文档约定。
+5. **变更边界**：除更新能力、所需网络/安装权限和版本号外，不改动 v6.6 其他功能。
+
+**已执行验证**：
+
+- `testDebugUnitTest`：13/13 通过，包含版本比较、Release APK 选择及 SHA-256 解析测试。
+- `lintDebug`：通过，0 errors，64 warnings。
+- `assembleDebug`：通过；APK versionName `6.7`、versionCode `40`。
+- APK 签名证书 SHA-256：`bea44b037cace6a94e52549a5633382020c0128bf0c588d3f95a82f5f1344e2f`，与 GitHub v6.2 Release APK 一致。
+- APK SHA-256：`8567D54719F784419A05476BDD0F7DF48EF708314771B610FBC6E93C9F2ED1BC`。
+- GitHub v6.8 尚未发布，自动下载与覆盖安装的真机端到端验证为 `NOT RUN`。
+
+---
+
+### v6.6（2026-08-26，versionCode 39）— 旋转坐标修复 + 最近任务隐藏 + 全屏保障
+
+**处理**：
+
+1. **180° 坐标翻转修复**：逻辑坐标不再把 `ROTATION_90` 与 `ROTATION_270`、`ROTATION_0` 与 `ROTATION_180` 当作需要旋转 180°；相反横屏/竖屏方向共享同一逻辑坐标。
+2. **编辑器保存修复**：低风险、长按和双击截图编辑器不再在保存阶段覆盖已经换算好的 `coordinateRotation`。
+3. **最近任务隐藏**：设置页新增可恢复开关，通过 `ActivityManager.AppTask.setExcludeFromRecents` 隐藏当前任务卡片；该功能不宣称阻止系统回收后台进程。
+4. **全屏显示保障**：设置“运行必须”新增窗口覆盖检测、异常提示和公开系统显示设置入口；华为操作路径只在明确识别为华为的设备显示，荣耀及其他厂商只显示通用说明。
+5. **nova 5 Pro 编辑页修复**：低风险、空白布局、长按和双击编辑器由只隐藏状态栏改为隐藏完整系统栏，与高风险编辑器保持一致。
+
+**已执行验证**：
+
+- `testDebugUnitTest`：10/10 通过，包含坐标旋转策略和厂商提示隔离测试。
+- `lintDebug`：通过，0 errors，63 warnings。
+- `assembleDebug`：通过；APK versionName `6.6`、versionCode `39`。
+- APK SHA-256：`B4599F2EAFB0EF393CAB30E5D56EC0381DB117B5E88FB4754469DB95B5E3830F`。
+- 真机与华为 nova 5 Pro 验证未执行，详见 `MANUAL_DEVICE_CHECKLIST-v6.6.md`。
+
+---
+
 ### v6.5（2026-08-19，versionCode 38）— 圆形屏蔽区修复 + 双击触发模式 + 透明度 0% 档位
 
 **背景**：修复圆形屏蔽区条纹缝隙漏点；新增"双击触发模式"；修正浅色主题下方案下拉框白字看不清；为透明度滑块新增 0% 档位并统一文案。

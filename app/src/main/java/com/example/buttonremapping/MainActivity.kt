@@ -24,20 +24,40 @@ import kotlin.math.roundToInt
 
 class MainActivity : Activity() {
     private var firstRunStep = 0
+    private lateinit var updateController: GitHubUpdateController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         RuntimeProtection.recordEvent(this, "应用启动")
+        RecentsVisibility.applySavedPreference(this)
         window.statusBarColor = Color.rgb(247, 248, 250)
         window.navigationBarColor = Color.rgb(247, 248, 250)
         ProfileManager.list(this, ProfileMode.LOW)
         ProfileManager.list(this, ProfileMode.HIGH)
+        updateController = GitHubUpdateController(this)
         showModeSelection()
-        window.decorView.post { showFirstRunPreparationIfNeeded() }
+        window.decorView.post {
+            val preparationAlreadyShown = getSharedPreferences(PREFS_RUNTIME, MODE_PRIVATE)
+                .getBoolean(KEY_PREPARATION_SHOWN, false)
+            showFirstRunPreparationIfNeeded()
+            if (preparationAlreadyShown) updateController.checkOnLaunch()
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        updateController.attach()
+    }
+
+    override fun onStop() {
+        updateController.detach()
+        super.onStop()
     }
 
     override fun onResume() {
         super.onResume()
+        RecentsVisibility.applySavedPreference(this)
+        updateController.resumePendingInstallIfAllowed()
         // 从悬浮窗系统设置页返回后继续首启流程。
         if (firstRunStep > 0 && firstRunStep < FIRST_RUN_FINISHED) {
             runNextFirstRunStep()

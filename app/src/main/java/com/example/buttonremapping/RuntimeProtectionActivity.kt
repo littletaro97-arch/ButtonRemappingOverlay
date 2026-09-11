@@ -24,24 +24,45 @@ class RuntimeProtectionActivity : Activity() {
     private lateinit var summaryView: TextView
     private lateinit var vendorNotice: TextView
     private lateinit var overlayStatus: TextView
+    private lateinit var fullscreenStatus: TextView
     private lateinit var notificationStatus: TextView
     private lateinit var batteryStatus: TextView
     private lateinit var diagnosticsView: TextView
     private lateinit var diagnosticsContent: LinearLayout
     private lateinit var diagnosticsToggle: TextView
     private lateinit var notificationButton: Button
+    private lateinit var recentsStatus: TextView
+    private lateinit var recentsButton: Button
+    private lateinit var updateStatus: TextView
+    private lateinit var updateController: GitHubUpdateController
     private var diagnosticsExpanded = false
+    private var fullscreenPromptShown = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         RuntimeProtection.recordEvent(this, "打开权限与运行保障")
         window.statusBarColor = Color.rgb(247, 248, 250)
         window.navigationBarColor = Color.rgb(247, 248, 250)
+        updateController = GitHubUpdateController(this) { value ->
+            if (::updateStatus.isInitialized) updateStatus.text = value
+        }
         setContentView(createContent())
+        window.decorView.post { refreshState() }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        updateController.attach()
+    }
+
+    override fun onStop() {
+        updateController.detach()
+        super.onStop()
     }
 
     override fun onResume() {
         super.onResume()
+        updateController.resumePendingInstallIfAllowed()
         if (::summaryView.isInitialized) refreshState()
     }
 
@@ -126,6 +147,18 @@ class RuntimeProtectionActivity : Activity() {
         }
         root.addView(overlayRow.container)
 
+        val fullscreenRow = checkRow(
+            title = "全屏显示",
+            description = fullscreenSettingsDescription(),
+        )
+        fullscreenStatus = fullscreenRow.status
+        fullscreenRow.button.text = "去显示设置"
+        fullscreenRow.button.setOnClickListener {
+            RuntimeProtection.recordEvent(this, "点击全屏显示设置")
+            FullscreenDisplay.openSettings(this)
+        }
+        root.addView(fullscreenRow.container)
+
         root.addView(sectionLabel("建议开启", 24))
         val notificationRow = checkRow(
             title = "通知权限",
@@ -161,6 +194,43 @@ class RuntimeProtectionActivity : Activity() {
         taskRow.button.text = "查看方法"
         taskRow.button.setOnClickListener { showTaskLockGuide() }
         root.addView(taskRow.container)
+
+        val recentsRow = checkRow(
+            title = "从最近任务隐藏",
+            description = "隐藏任务卡片，减少被手动划掉的机会；不能阻止系统回收后台进程。",
+        )
+        recentsStatus = recentsRow.status
+        recentsButton = recentsRow.button
+        recentsButton.setOnClickListener {
+            val hidden = !RecentsVisibility.isHidden(this)
+            val applied = RecentsVisibility.setHidden(this, hidden)
+            RuntimeProtection.recordEvent(
+                this,
+                "更新最近任务可见性",
+                "hidden=$hidden; applied=$applied",
+            )
+            refreshState()
+            Toast.makeText(
+                this,
+                if (hidden) "已从最近任务隐藏" else "已恢复最近任务显示",
+                Toast.LENGTH_SHORT,
+            ).show()
+        }
+        root.addView(recentsRow.container)
+
+        root.addView(sectionLabel("应用更新", 24))
+        val updateRow = checkRow(
+            title = "GitHub Release 更新",
+            description = "自动检查正式发布的最新版本；下载后校验哈希、包名、版本号和签名。",
+        )
+        updateStatus = updateRow.status
+        updateStatus.text = "当前版本 v${BuildConfig.VERSION_NAME}"
+        updateRow.button.text = "立即检查"
+        updateRow.button.setOnClickListener {
+            RuntimeProtection.recordEvent(this, "手动检查 GitHub 更新")
+            updateController.checkNow()
+        }
+        root.addView(updateRow.container)
 
         root.addView(sectionLabel("运行诊断", 28))
         diagnosticsToggle = textView("运行诊断详情（点击展开）", 13f, Color.rgb(116, 167, 255), 6).apply {
@@ -219,6 +289,37 @@ class RuntimeProtectionActivity : Activity() {
         overlayStatus.text = if (status.overlayGranted) "已开启" else "未开启"
         overlayStatus.setTextColor(if (status.overlayGranted) GREEN else RED)
 
+        val fullscreen = FullscreenDisplay.inspect(this)
+        fullscreenStatus.text = when (fullscreen.state) {
+            FullscreenState.READY -> "已覆盖完整显示区域"
+            FullscreenState.RESTRICTED -> "未全屏显示，请打开系统设置"
+            FullscreenState.UNKNOWN -> "暂时无法检测，请进入设置确认"
+        }
+        fullscreenStatus.setTextColor(
+            when (fullscreen.state) {
+                FullscreenState.READY -> GREEN
+                FullscreenState.RESTRICTED -> RED
+                FullscreenState.UNKNOWN -> YELLOW
+            },
+        )
+        if (fullscreen.state == FullscreenState.RESTRICTED && !fullscreenPromptShown) {
+            fullscreenPromptShown = true
+            val vendorGuide = if (RuntimeProtection.isHuaweiDevice()) {
+                "\n\n华为 / EMUI：显示和亮度 > 更多显示设置 > 应用全屏显示。"
+            } else {
+                "\n\n请在当前设备的显示或应用显示设置中，为本应用开启全屏显示。"
+            }
+            AlertDialog.Builder(this)
+                .setTitle("需要开启全屏显示")
+                .setMessage(
+                    "检测到应用窗口没有覆盖完整显示区域。请在系统显示设置中为“游戏按钮映射”开启全屏显示。" +
+                        vendorGuide,
+                )
+                .setNegativeButton("稍后", null)
+                .setPositiveButton("去设置") { _, _ -> FullscreenDisplay.openSettings(this) }
+                .show()
+        }
+
         notificationStatus.text = RuntimeProtection.notificationLabel(status)
         notificationStatus.setTextColor(
             when {
@@ -236,6 +337,11 @@ class RuntimeProtectionActivity : Activity() {
 
         batteryStatus.text = RuntimeProtection.batteryLabel(status)
         batteryStatus.setTextColor(if (status.batteryReady) GREEN else YELLOW)
+
+        val hiddenFromRecents = RecentsVisibility.isHidden(this)
+        recentsStatus.text = if (hiddenFromRecents) "已隐藏" else "当前显示"
+        recentsStatus.setTextColor(if (hiddenFromRecents) GREEN else YELLOW)
+        recentsButton.text = if (hiddenFromRecents) "恢复显示" else "立即隐藏"
         if (diagnosticsExpanded) {
             diagnosticsView.text = RuntimeProtection.diagnosticText(this)
         }
@@ -282,6 +388,12 @@ class RuntimeProtectionActivity : Activity() {
             )
             .setPositiveButton("知道了", null)
             .show()
+    }
+
+    private fun fullscreenSettingsDescription(): String = if (RuntimeProtection.isHuaweiDevice()) {
+        "编辑区域必须覆盖完整屏幕。请确认“显示和亮度 > 更多显示设置 > 应用全屏显示”。"
+    } else {
+        "编辑区域必须覆盖完整屏幕；未全屏时请在当前设备的显示设置中开启。"
     }
 
     private fun copyDiagnostics() {

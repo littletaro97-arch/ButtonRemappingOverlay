@@ -11,8 +11,8 @@ android {
         applicationId = "com.example.buttonremapping"
         minSdk = 26
         targetSdk = 35
-        versionCode = 38
-        versionName = "6.5"
+        versionCode = 40
+        versionName = "6.7"
     }
 
     compileOptions {
