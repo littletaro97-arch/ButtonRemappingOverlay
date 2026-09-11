@@ -47,7 +47,10 @@ class GitHubUpdateController(
         if (attached) return
         val filter = IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            activity.registerReceiver(downloadReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+            // DownloadManager runs in a separate system package, so Android 13+ treats
+            // ACTION_DOWNLOAD_COMPLETE as an external broadcast. The stored download ID
+            // is still checked before the downloaded file is queried and validated.
+            activity.registerReceiver(downloadReceiver, filter, Context.RECEIVER_EXPORTED)
         } else {
             @Suppress("DEPRECATION")
             activity.registerReceiver(downloadReceiver, filter)
